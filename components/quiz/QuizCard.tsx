@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/time";
-import { Clock, HelpCircle } from "lucide-react";
+import { Clock, HelpCircle, Loader2 } from "lucide-react";
 
 interface QuizCardProps {
   quiz: {
@@ -17,9 +17,10 @@ interface QuizCardProps {
     questionCount: number;
   };
   onHost: (quizId: string) => void;
+  isHosting?: boolean;
 }
 
-export default function QuizCard({ quiz, onHost }: QuizCardProps) {
+export default function QuizCard({ quiz, onHost, isHosting }: QuizCardProps) {
   const router = useRouter();
   return (
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow duration-200">
@@ -55,8 +56,13 @@ export default function QuizCard({ quiz, onHost }: QuizCardProps) {
           className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
           size="sm"
           onClick={() => onHost(quiz._id)}
+          disabled={isHosting}
         >
-          Host
+          {isHosting ? (
+            <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Starting…</>
+          ) : (
+            "Host"
+          )}
         </Button>
         <Button
           variant="outline"

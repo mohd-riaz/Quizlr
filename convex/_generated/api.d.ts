@@ -8,8 +8,11 @@
  * @module
  */
 
+import type * as ai from "../ai.js";
+import type * as answers from "../answers.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
+import type * as participants from "../participants.js";
 import type * as quizzes from "../quizzes.js";
 import type * as sessions from "../sessions.js";
 import type * as users from "../users.js";
@@ -21,8 +24,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
+  answers: typeof answers;
   auth: typeof auth;
   http: typeof http;
+  participants: typeof participants;
   quizzes: typeof quizzes;
   sessions: typeof sessions;
   users: typeof users;

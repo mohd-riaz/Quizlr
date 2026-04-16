@@ -140,7 +140,7 @@ export default function SignIn() {
               {/* Error display */}
               {error && (
                 <div className="bg-rose-500/10 border border-rose-500/40 rounded-lg p-4 mt-1">
-                  <p className="text-rose-400 font-medium text-sm break-words">
+                  <p className="text-rose-400 font-medium text-sm wrap-break-word">
                     {error}
                   </p>
                 </div>

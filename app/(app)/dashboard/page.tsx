@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useConvex } from "convex/react";
+import { useQuery, useConvex, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import QuizCard from "@/components/quiz/QuizCard";
 import { Button } from "@/components/ui/button";
@@ -22,14 +23,29 @@ export default function DashboardPage() {
   const router = useRouter();
   const convex = useConvex();
   const quizzes = useQuery(api.quizzes.listByHost);
+  const createSession = useMutation(api.sessions.create);
 
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const [hostingQuizId, setHostingQuizId] = useState<string | null>(null);
 
-  const handleHost = (quizId: string) => {
-    router.push(`/quiz/${quizId}/host`);
+  const handleHost = async (quizId: string) => {
+    setHostingQuizId(quizId);
+    try {
+      const result = await createSession({ quizId: quizId as Id<"quizzes"> });
+      // Store host participant ID so the game page recognises this browser as host
+      localStorage.setItem(
+        `quizlr_participant_${result.sessionId}`,
+        result.hostParticipantId
+      );
+      router.push(`/game/${result.sessionId}`);
+    } catch (err) {
+      console.error("Failed to create session:", err);
+    } finally {
+      setHostingQuizId(null);
+    }
   };
 
   const handleJoin = async () => {
@@ -153,7 +169,12 @@ export default function DashboardPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {quizzes.map((quiz) => (
-                <QuizCard key={quiz._id} quiz={quiz} onHost={handleHost} />
+                <QuizCard
+                  key={quiz._id}
+                  quiz={quiz}
+                  onHost={handleHost}
+                  isHosting={hostingQuizId === quiz._id}
+                />
               ))}
             </div>
           </>
