@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { cn } from "@/lib/utils";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -67,9 +68,7 @@ export function SignInForm({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"github" | "google" | null>(
-    null,
-  );
+  const [oauthLoading, setOauthLoading] = useState<"github" | "google" | null>(null);
 
   const handleOAuth = async (provider: "github" | "google") => {
     setOauthLoading(provider);
@@ -162,10 +161,9 @@ export function SignInForm({
 
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   placeholder="••••••••"
                   required
                   disabled={disabled}

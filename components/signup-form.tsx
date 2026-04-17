@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Card,
   CardContent,
@@ -22,6 +24,14 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { mapConvexAuthError } from "@/utils/map-convex-auth-error";
+
+const PASSWORD_RULES: { label: string; test: (p: string) => boolean }[] = [
+  { label: "8+ characters", test: (p) => p.length >= 8 },
+  { label: "Uppercase letter", test: (p) => /[A-Z]/.test(p) },
+  { label: "Lowercase letter", test: (p) => /[a-z]/.test(p) },
+  { label: "Number", test: (p) => /[0-9]/.test(p) },
+  { label: "Special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -65,11 +75,17 @@ export function SignUpForm({
 }: React.ComponentProps<"div">) {
   const { signIn } = useAuthActions();
   const router = useRouter();
+  const [step, setStep] = useState<"signUp" | { email: string }>("signUp");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"github" | "google" | null>(
-    null,
-  );
+  const [oauthLoading, setOauthLoading] = useState<"github" | "google" | null>(null);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const passwordRulesPassed = password.length > 0 && PASSWORD_RULES.every((r) => r.test(password));
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const showRules = password.length > 0;
+  const showMatchError = confirmPassword.length > 0 && !passwordsMatch;
 
   const handleOAuth = async (provider: "github" | "google") => {
     setOauthLoading(provider);
@@ -82,12 +98,34 @@ export function SignUpForm({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!passwordRulesPassed) {
+      setError("Please meet all password requirements.");
+      return;
+    }
+    if (!passwordsMatch) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    formData.set("flow", "signUp");
+    void signIn("password", formData)
+      .then(() => { setLoading(false); setStep({ email }); })
+      .catch((err: Error) => {
+        setError(mapConvexAuthError(err));
+        setLoading(false);
+      });
+  };
+
+  const handleVerify = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
-    formData.set("flow", "signUp");
     void signIn("password", formData)
       .then(() => router.push("/"))
       .catch((err: Error) => {
@@ -97,6 +135,83 @@ export function SignUpForm({
   };
 
   const disabled = loading || oauthLoading !== null;
+
+  if (step !== "signUp") {
+    return (
+      <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <Card>
+          <CardHeader>
+            <Link
+              href="/"
+              className="text-2xl font-extrabold tracking-tight text-foreground mx-auto mb-4"
+            >
+              Quiz<span className="text-muted-foreground">lr</span>
+            </Link>
+            <CardTitle>Check your email</CardTitle>
+            <CardDescription>
+              We sent a 6-digit code to <strong>{step.email}</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <form
+                onSubmit={handleVerify}
+                className="flex flex-col gap-5"
+                onChange={() => setError(null)}
+              >
+                <input type="hidden" name="flow" value="email-verification" />
+                <input type="hidden" name="email" value={step.email} />
+
+                <Field>
+                  <FieldLabel htmlFor="code">Verification code</FieldLabel>
+                  <Input
+                    id="code"
+                    name="code"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="123456"
+                    maxLength={6}
+                    autoFocus
+                    autoComplete="one-time-code"
+                    required
+                    disabled={loading}
+                    className="text-center text-2xl tracking-[0.5em] font-mono"
+                  />
+                  <FieldDescription>Enter the code from your email. It expires in 15 minutes.</FieldDescription>
+                </Field>
+
+                {error && (
+                  <FieldDescription className="text-destructive">
+                    {error}
+                  </FieldDescription>
+                )}
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {loading ? "Verifying…" : "Verify email"}
+                </Button>
+
+                <FieldDescription className="text-center">
+                  Wrong email?{" "}
+                  <button
+                    type="button"
+                    className="underline underline-offset-4 hover:text-primary"
+                    onClick={() => { setStep("signUp"); setError(null); }}
+                  >
+                    Go back
+                  </button>
+                </FieldDescription>
+              </form>
+            </FieldGroup>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -139,13 +254,9 @@ export function SignUpForm({
             <FieldSeparator>or</FieldSeparator>
 
             <form
-              onSubmit={handleSubmit}
+              onSubmit={handleSignUp}
               className="flex flex-col gap-5"
-              onChange={() => {
-                if (error) {
-                  setError(null);
-                }
-              }}
+              onChange={() => setError(null)}
             >
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -162,19 +273,53 @@ export function SignUpForm({
 
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   placeholder="••••••••"
-                  minLength={8}
                   required
                   disabled={disabled}
-                  aria-invalid={!!error}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
+                  aria-invalid={showRules && !passwordRulesPassed}
                 />
-                <FieldDescription>
-                  Must be at least 8 characters
-                </FieldDescription>
+                {showRules && (
+                  <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5">
+                    {PASSWORD_RULES.map((rule) => {
+                      const passed = rule.test(password);
+                      return (
+                        <span key={rule.label} className={`flex items-center gap-1 text-xs ${passed ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                          {passed ? <Check className="size-3 shrink-0" /> : <X className="size-3 shrink-0" />}
+                          {rule.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="confirmPassword">Confirm password</FieldLabel>
+                <PasswordInput
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  required
+                  disabled={disabled}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value.replace(/\s/g, ""))}
+                  aria-invalid={showMatchError}
+                />
+                {showMatchError && (
+                  <FieldDescription className="text-destructive">
+                    Passwords do not match.
+                  </FieldDescription>
+                )}
+                {passwordsMatch && (
+                  <FieldDescription className="text-emerald-600 dark:text-emerald-400">
+                    Passwords match.
+                  </FieldDescription>
+                )}
               </Field>
 
               {error && (
@@ -187,7 +332,7 @@ export function SignUpForm({
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={disabled}
+                disabled={disabled || !passwordRulesPassed || !passwordsMatch}
               >
                 {loading ? "Loading…" : "Create account"}
               </Button>
