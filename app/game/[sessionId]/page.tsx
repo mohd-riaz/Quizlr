@@ -11,6 +11,7 @@ import PlayerWaiting from "@/components/game/PlayerWaiting";
 import QuestionView from "@/components/game/QuestionView";
 import ScoreReveal from "@/components/game/ScoreReveal";
 import Leaderboard from "@/components/game/Leaderboard";
+import { Button } from "@/components/ui/button";
 
 export default function GamePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -81,7 +82,7 @@ export default function GamePage() {
   if (session === null) {
     return (
       <GameShell>
-        <div className="text-center py-20 text-slate-400">
+        <div className="text-center py-20 text-muted-foreground">
           Session not found.
         </div>
       </GameShell>
@@ -93,15 +94,16 @@ export default function GamePage() {
     return (
       <GameShell>
         <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-4">
-          <p className="text-slate-300 text-center text-lg font-semibold">
+          <p className="text-foreground text-center text-lg font-semibold">
             This session has already started.
           </p>
-          <button
+          <Button
+            variant="link"
             onClick={() => router.push("/")}
-            className="text-indigo-400 hover:text-indigo-300 text-sm underline"
+            className="text-primary text-sm"
           >
             Go to home
-          </button>
+          </Button>
         </div>
       </GameShell>
     );
@@ -127,7 +129,7 @@ export default function GamePage() {
   if (participant === null || quiz === null) {
     return (
       <GameShell>
-        <div className="text-center py-20 text-slate-400">Data not found.</div>
+        <div className="text-center py-20 text-muted-foreground">Data not found.</div>
       </GameShell>
     );
   }
@@ -215,13 +217,13 @@ export default function GamePage() {
   // Fallback
   return (
     <GameShell>
-      <div className="text-center py-20 text-slate-400">Loading…</div>
+      <div className="text-center py-20 text-muted-foreground">Loading…</div>
     </GameShell>
   );
 }
 
 function GameShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-slate-900 text-white">{children}</div>
+    <div className="dark min-h-screen bg-background text-foreground">{children}</div>
   );
 }

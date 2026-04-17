@@ -187,10 +187,10 @@ export default function QuizWizard() {
                 className={cn(
                   "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-colors",
                   i < step
-                    ? "bg-indigo-600 border-indigo-600 text-white"
+                    ? "bg-primary border-primary text-primary-foreground"
                     : i === step
-                      ? "border-indigo-600 text-indigo-600 bg-white"
-                      : "border-slate-300 text-slate-400 bg-white"
+                      ? "border-primary text-primary bg-background"
+                      : "border-muted text-muted-foreground bg-background"
                 )}
               >
                 {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
@@ -198,7 +198,7 @@ export default function QuizWizard() {
               <span
                 className={cn(
                   "text-sm font-medium hidden sm:block",
-                  i === step ? "text-slate-800" : "text-slate-400"
+                  i === step ? "text-foreground" : "text-muted-foreground"
                 )}
               >
                 {label}
@@ -208,7 +208,7 @@ export default function QuizWizard() {
               <div
                 className={cn(
                   "flex-1 h-0.5 mx-2",
-                  i < step ? "bg-indigo-600" : "bg-slate-200"
+                  i < step ? "bg-primary" : "bg-muted"
                 )}
               />
             )}
@@ -219,7 +219,7 @@ export default function QuizWizard() {
       {/* ── STEP 1: Quiz Details ─────────────────────────────── */}
       {step === 0 && (
         <div className="flex flex-col gap-5">
-          <h2 className="text-xl font-semibold text-slate-800">Quiz Details</h2>
+          <h2 className="text-xl font-semibold text-foreground">Quiz Details</h2>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="title">Title *</Label>
@@ -235,7 +235,7 @@ export default function QuizWizard() {
           <div className="flex flex-col gap-2">
             <Label htmlFor="description">
               Description{" "}
-              <span className="text-slate-400 font-normal">(optional)</span>
+              <span className="text-muted-foreground font-normal">(optional)</span>
             </Label>
             <Textarea
               id="description"
@@ -259,9 +259,9 @@ export default function QuizWizard() {
               max={20}
               value={questionCount}
               onChange={(e) => setQuestionCount(Number(e.target.value))}
-              className="w-full accent-indigo-600"
+              className="w-full accent-primary"
             />
-            <div className="flex justify-between text-xs text-slate-400">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>1</span>
               <span>20</span>
             </div>
@@ -277,8 +277,8 @@ export default function QuizWizard() {
                   className={cn(
                     "flex-1 py-2 rounded-lg border-2 text-sm font-semibold transition-colors",
                     timeLimit === t
-                      ? "bg-indigo-600 border-indigo-600 text-white"
-                      : "border-slate-200 text-slate-600 hover:border-indigo-300"
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "border-border text-foreground hover:border-primary/60"
                   )}
                 >
                   {t}s
@@ -289,7 +289,7 @@ export default function QuizWizard() {
 
           <div className="flex justify-end mt-2">
             <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+              className="cursor-pointer"
               onClick={() => setStep(1)}
               disabled={!step1Valid}
             >
@@ -303,10 +303,10 @@ export default function QuizWizard() {
       {/* ── STEP 2: Generate Questions ───────────────────────── */}
       {step === 1 && (
         <div className="flex flex-col gap-5">
-          <h2 className="text-xl font-semibold text-slate-800">
+          <h2 className="text-xl font-semibold text-foreground">
             Generate Questions
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Describe the topic and let AI generate {questionCount} questions for
             you. You&apos;ll be able to edit them in the next step.
           </p>
@@ -326,14 +326,14 @@ export default function QuizWizard() {
           </div>
 
           {generateError && (
-            <div className="flex items-start gap-2 text-rose-600 text-sm bg-rose-50 border border-rose-200 rounded-lg p-3">
+            <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3">
               <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <span>{generateError}</span>
             </div>
           )}
 
           <Button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer self-start"
+            className="cursor-pointer self-start"
             onClick={handleGenerate}
             disabled={isGenerating || !topic.trim()}
           >
@@ -353,7 +353,7 @@ export default function QuizWizard() {
           <Separator />
 
           <div>
-            <p className="text-sm text-slate-500 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               Or skip AI and add questions manually:
             </p>
             <Button
@@ -385,20 +385,20 @@ export default function QuizWizard() {
       {step === 2 && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-800">
+            <h2 className="text-xl font-semibold text-foreground">
               Review &amp; Edit Questions
             </h2>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-muted-foreground">
               {questions.length} question{questions.length !== 1 ? "s" : ""}
             </span>
           </div>
-          <p className="text-sm text-slate-500 -mt-2">
+          <p className="text-sm text-muted-foreground -mt-2">
             Click an option letter to mark the correct answer. Drag{" "}
             <span className="font-medium">⠿</span> to reorder.
           </p>
 
           {questions.length === 0 && (
-            <div className="text-center py-12 text-slate-400 text-sm border-2 border-dashed rounded-xl">
+            <div className="text-center py-12 text-muted-foreground text-sm border-2 border-dashed rounded-xl">
               No questions yet — add one below.
             </div>
           )}
@@ -436,7 +436,7 @@ export default function QuizWizard() {
           </Button>
 
           {saveError && (
-            <div className="flex items-start gap-2 text-rose-600 text-sm bg-rose-50 border border-rose-200 rounded-lg p-3">
+            <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3">
               <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <span>{saveError}</span>
             </div>
@@ -455,7 +455,7 @@ export default function QuizWizard() {
               Back
             </Button>
             <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+              className="cursor-pointer"
               onClick={handleSave}
               disabled={isSaving || questions.length === 0}
             >

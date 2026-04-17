@@ -15,7 +15,7 @@ export default function EditQuizPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
       {quiz === undefined ? (
         // Loading
@@ -26,7 +26,7 @@ export default function EditQuizPage() {
           <Skeleton className="h-40 w-full rounded-xl" />
         </div>
       ) : quiz === null ? (
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-slate-500">
+        <div className="max-w-3xl mx-auto px-4 py-16 text-center text-muted-foreground">
           Quiz not found.
         </div>
       ) : (

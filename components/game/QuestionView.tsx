@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import TimerBar from "@/components/game/TimerBar";
 import AnswerButton, { AnswerState } from "@/components/game/AnswerButton";
+import { Button } from "@/components/ui/button";
 
 interface Question {
   _id: string;
@@ -83,12 +84,12 @@ export default function QuestionView({
   return (
     <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto px-4 py-6">
       {/* Progress */}
-      <div className="flex items-center justify-between text-slate-400 text-sm">
+      <div className="flex items-center justify-between text-muted-foreground text-sm">
         <span>
           Question {questionIndex + 1} of {totalQuestions}
         </span>
         {isHost && (
-          <span className="text-indigo-400 font-medium text-xs uppercase tracking-wide">
+          <span className="text-primary font-medium text-xs uppercase tracking-wide">
             Host view
           </span>
         )}
@@ -102,8 +103,8 @@ export default function QuestionView({
       />
 
       {/* Question text */}
-      <div className="bg-slate-800 rounded-2xl px-6 py-5">
-        <p className="text-white font-semibold text-xl sm:text-2xl leading-snug text-center">
+      <div className="bg-card rounded-2xl px-6 py-5">
+        <p className="text-foreground font-semibold text-xl sm:text-2xl leading-snug text-center">
           {question.text}
         </p>
       </div>
@@ -124,24 +125,24 @@ export default function QuestionView({
 
       {/* Player feedback */}
       {!isHost && selectedIndex !== null && (
-        <p className="text-center text-slate-400 text-sm animate-pulse">
+        <p className="text-center text-muted-foreground text-sm animate-pulse">
           Answer submitted — waiting for results…
         </p>
       )}
       {!isHost && timerExpired && selectedIndex === null && (
-        <p className="text-center text-rose-400 text-sm font-medium">
+        <p className="text-center text-destructive text-sm font-medium">
           Time&apos;s up! You didn&apos;t answer in time.
         </p>
       )}
 
       {/* Host: manual end button (appears after timer expires) */}
       {isHost && timerExpired && (
-        <button
+        <Button
           onClick={onEndQuestion}
-          className="self-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+          className="self-center font-semibold px-6"
         >
           Show Results
-        </button>
+        </Button>
       )}
     </div>
   );

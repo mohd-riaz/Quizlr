@@ -26,12 +26,12 @@ export default function QuizCard({ quiz, onHost, isHosting }: QuizCardProps) {
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow duration-200">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-slate-800 text-lg leading-tight line-clamp-2">
+          <h3 className="font-semibold text-foreground text-lg leading-tight line-clamp-2">
             {quiz.title}
           </h3>
         </div>
         {quiz.description && (
-          <p className="text-sm text-slate-500 line-clamp-2 mt-1">{quiz.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{quiz.description}</p>
         )}
       </CardHeader>
 
@@ -46,14 +46,14 @@ export default function QuizCard({ quiz, onHost, isHosting }: QuizCardProps) {
             {quiz.timeLimit}s per question
           </Badge>
         </div>
-        <p className="text-xs text-slate-400 mt-3">
+        <p className="text-xs text-muted-foreground mt-3">
           Updated {timeAgo(quiz.updatedAt)}
         </p>
       </CardContent>
 
       <CardFooter className="flex gap-2 pt-2">
         <Button
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+          className="flex-1 cursor-pointer"
           size="sm"
           onClick={() => onHost(quiz._id)}
           disabled={isHosting}

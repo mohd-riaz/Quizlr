@@ -172,16 +172,16 @@ export default function QuizEditor({
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => router.push("/dashboard")}
-          className="text-slate-500 hover:text-slate-700 transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Back to dashboard"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-2xl font-bold text-slate-800">Edit Quiz</h1>
+        <h1 className="text-2xl font-bold text-foreground">Edit Quiz</h1>
       </div>
 
       {/* Meta fields */}
-      <div className="bg-white border rounded-xl p-5 mb-5 flex flex-col gap-4">
+      <div className="bg-card border rounded-xl p-5 mb-5 flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor="edit-title">Title *</Label>
           <Input
@@ -194,7 +194,7 @@ export default function QuizEditor({
         <div className="flex flex-col gap-2">
           <Label htmlFor="edit-desc">
             Description{" "}
-            <span className="text-slate-400 font-normal">(optional)</span>
+            <span className="text-muted-foreground font-normal">(optional)</span>
           </Label>
           <Textarea
             id="edit-desc"
@@ -213,8 +213,8 @@ export default function QuizEditor({
                 className={cn(
                   "flex-1 py-2 rounded-lg border-2 text-sm font-semibold transition-colors",
                   timeLimit === t
-                    ? "bg-indigo-600 border-indigo-600 text-white"
-                    : "border-slate-200 text-slate-600 hover:border-indigo-300"
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : "border-border text-foreground hover:border-primary/60"
                 )}
               >
                 {t}s
@@ -226,13 +226,13 @@ export default function QuizEditor({
 
       {/* Question list */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-semibold text-slate-700">
+        <h2 className="font-semibold text-foreground">
           Questions ({questions.length})
         </h2>
       </div>
 
       {questions.length === 0 && (
-        <div className="text-center py-12 text-slate-400 text-sm border-2 border-dashed rounded-xl mb-4">
+        <div className="text-center py-12 text-muted-foreground text-sm border-2 border-dashed rounded-xl mb-4">
           No questions — add one below.
         </div>
       )}
@@ -270,7 +270,7 @@ export default function QuizEditor({
       </Button>
 
       {saveError && (
-        <div className="flex items-start gap-2 text-rose-600 text-sm bg-rose-50 border border-rose-200 rounded-lg p-3 mb-4">
+        <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3 mb-4">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <span>{saveError}</span>
         </div>
@@ -280,7 +280,7 @@ export default function QuizEditor({
 
       <div className="flex justify-end">
         <Button
-          className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+          className="cursor-pointer"
           onClick={handleSave}
           disabled={isSaving}
         >

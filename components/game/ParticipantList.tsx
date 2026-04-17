@@ -18,23 +18,23 @@ export default function ParticipantList({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-slate-400 text-sm font-medium">
+      <p className="text-muted-foreground text-sm font-medium">
         {players.length} player{players.length !== 1 ? "s" : ""} joined
       </p>
       <div className="max-h-48 overflow-y-auto flex flex-wrap gap-2">
         {players.map((p) => (
           <div
             key={p._id}
-            className="flex items-center gap-1.5 bg-slate-700 rounded-full px-3 py-1.5"
+            className="flex items-center gap-1.5 bg-muted rounded-full px-3 py-1.5"
           >
-            <span className="text-sm font-medium text-white">{p.nickname}</span>
+            <span className="text-sm font-medium text-foreground">{p.nickname}</span>
             {showScores && (
-              <span className="text-xs text-slate-400">{p.score} pts</span>
+              <span className="text-xs text-muted-foreground">{p.score} pts</span>
             )}
           </div>
         ))}
         {players.length === 0 && (
-          <p className="text-slate-500 text-sm italic">
+          <p className="text-muted-foreground text-sm italic">
             Waiting for players to join…
           </p>
         )}

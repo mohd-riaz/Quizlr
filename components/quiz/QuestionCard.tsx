@@ -80,8 +80,8 @@ export default function QuestionCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "bg-white border rounded-xl p-4 shadow-sm",
-        isDragging && "opacity-50 shadow-lg ring-2 ring-indigo-300"
+        "bg-card border rounded-xl p-4 shadow-sm",
+        isDragging && "opacity-50 shadow-lg ring-2 ring-primary/50"
       )}
     >
       {/* Header row */}
@@ -90,7 +90,7 @@ export default function QuestionCard({
         <button
           {...attributes}
           {...listeners}
-          className="mt-1 p-1 text-slate-400 hover:text-slate-600 cursor-grab active:cursor-grabbing touch-none"
+          className="mt-1 p-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none"
           aria-label="Drag to reorder"
         >
           <GripVertical className="w-4 h-4" />
@@ -98,7 +98,7 @@ export default function QuestionCard({
 
         {/* Question number + text */}
         <div className="flex-1">
-          <p className="text-xs font-medium text-slate-400 mb-1">
+          <p className="text-xs font-medium text-muted-foreground mb-1">
             Question {index + 1}
           </p>
           <Textarea
@@ -112,7 +112,7 @@ export default function QuestionCard({
         {/* Delete */}
         <button
           onClick={onDelete}
-          className="mt-1 p-1 text-slate-400 hover:text-rose-500 transition-colors"
+          className="mt-1 p-1 text-muted-foreground hover:text-destructive transition-colors"
           aria-label="Delete question"
         >
           <Trash2 className="w-4 h-4" />
@@ -153,7 +153,7 @@ export default function QuestionCard({
       <div className="ml-6">
         <button
           onClick={() => setShowExplanation((v) => !v)}
-          className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 mb-1"
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-1"
         >
           {showExplanation ? (
             <ChevronUp className="w-3 h-3" />

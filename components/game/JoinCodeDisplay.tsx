@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface JoinCodeDisplayProps {
   joinCode: string;
@@ -23,17 +24,19 @@ export default function JoinCodeDisplay({
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <p className="text-slate-400 text-sm font-medium uppercase tracking-widest">
+      <p className="text-muted-foreground text-sm font-medium uppercase tracking-widest">
         Join Code
       </p>
-      <div className="bg-slate-800 rounded-2xl px-8 py-4">
-        <span className="text-5xl font-black tracking-[0.3em] text-white font-mono">
+      <div className="bg-card rounded-2xl px-8 py-4">
+        <span className="text-5xl font-black tracking-[0.3em] text-foreground font-mono">
           {joinCode}
         </span>
       </div>
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={handleCopy}
-        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm"
       >
         {copied ? (
           <>
@@ -46,7 +49,7 @@ export default function JoinCodeDisplay({
             Copy join link
           </>
         )}
-      </button>
+      </Button>
     </div>
   );
 }

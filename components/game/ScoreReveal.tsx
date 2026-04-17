@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Question {
   _id: string;
@@ -52,13 +53,13 @@ export default function ScoreReveal({
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto px-4 py-6">
-      <h2 className="text-slate-300 text-center text-lg font-semibold">
+      <h2 className="text-foreground text-center text-lg font-semibold">
         Answer Reveal
       </h2>
 
       {/* Question */}
-      <div className="bg-slate-800 rounded-2xl px-6 py-4">
-        <p className="text-white font-semibold text-lg sm:text-xl text-center">
+      <div className="bg-card rounded-2xl px-6 py-4">
+        <p className="text-foreground font-semibold text-lg sm:text-xl text-center">
           {question.text}
         </p>
       </div>
@@ -73,7 +74,7 @@ export default function ScoreReveal({
               className={`flex items-center gap-3 rounded-xl px-4 py-3 border-b-4 ${
                 isCorrect
                   ? `${OPTION_COLORS[i]} border-b-black/20`
-                  : "bg-slate-700/50 border-b-slate-800 opacity-50"
+                  : "bg-muted/50 border-b-border opacity-50"
               }`}
             >
               <span className="text-xl w-6">{SHAPES[i]}</span>
@@ -88,13 +89,13 @@ export default function ScoreReveal({
 
       {/* Explanation */}
       {question.explanation && (
-        <p className="text-slate-400 text-sm text-center italic">
+        <p className="text-muted-foreground text-sm text-center italic">
           {question.explanation}
         </p>
       )}
 
       {/* Stats */}
-      <div className="bg-slate-800 rounded-xl px-5 py-3 text-center text-slate-300 text-sm">
+      <div className="bg-card rounded-xl px-5 py-3 text-center text-foreground text-sm">
         {correctCount} / {totalAnswers} players answered correctly
       </div>
 
@@ -129,19 +130,19 @@ export default function ScoreReveal({
         </div>
       )}
       {!isHost && !myAnswer && (
-        <div className="rounded-xl px-5 py-4 text-center bg-slate-800">
-          <p className="text-slate-400">You didn&apos;t answer in time.</p>
+        <div className="rounded-xl px-5 py-4 text-center bg-card">
+          <p className="text-muted-foreground">You didn&apos;t answer in time.</p>
         </div>
       )}
 
       {/* Host: next button */}
       {isHost && (
-        <button
+        <Button
           onClick={onNext}
-          className="self-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors"
+          className="self-center font-semibold px-8"
         >
           Next Question →
-        </button>
+        </Button>
       )}
     </div>
   );

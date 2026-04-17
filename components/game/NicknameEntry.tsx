@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 interface NicknameEntryProps {
@@ -58,16 +59,16 @@ export default function NicknameEntry({
       <div className="w-full max-w-sm flex flex-col gap-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-4xl font-black text-white mb-1">
-            Quiz<span className="text-indigo-400">lr</span>
+          <h1 className="text-4xl font-black text-foreground mb-1">
+            Quiz<span className="text-primary">lr</span>
           </h1>
-          <p className="text-slate-300 font-semibold text-lg">{quizTitle}</p>
+          <p className="text-foreground font-semibold text-lg">{quizTitle}</p>
         </div>
 
         {/* Form */}
-        <div className="bg-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+        <div className="bg-card rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="nickname" className="text-slate-300">
+            <Label htmlFor="nickname" className="text-foreground">
               Your nickname
             </Label>
             <Input
@@ -81,16 +82,17 @@ export default function NicknameEntry({
               onKeyDown={(e) => e.key === "Enter" && handleJoin()}
               maxLength={24}
               autoFocus
-              className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500 text-center text-lg font-semibold"
+              className="text-center text-lg font-semibold"
             />
           </div>
           {error && (
-            <p className="text-rose-400 text-sm text-center">{error}</p>
+            <p className="text-destructive text-sm text-center">{error}</p>
           )}
-          <button
+          <Button
             onClick={handleJoin}
             disabled={isJoining || !nickname.trim()}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold text-lg py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full font-bold text-lg py-6"
+            size="lg"
           >
             {isJoining ? (
               <>
@@ -100,7 +102,7 @@ export default function NicknameEntry({
             ) : (
               "Join Game"
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

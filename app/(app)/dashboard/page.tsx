@@ -72,14 +72,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Top actions */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <Button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+            className="cursor-pointer"
             onClick={() => router.push("/quiz/new")}
           >
             <PlusCircle className="w-4 h-4 mr-2" />
@@ -113,10 +113,10 @@ export default function DashboardPage() {
                   />
                 </div>
                 {joinError && (
-                  <p className="text-sm text-rose-600">{joinError}</p>
+                  <p className="text-sm text-destructive">{joinError}</p>
                 )}
                 <Button
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+                  className="cursor-pointer"
                   onClick={handleJoin}
                   disabled={joining}
                 >
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           // Loading skeletons
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-3 p-5 rounded-xl border bg-white">
+              <div key={i} className="flex flex-col gap-3 p-5 rounded-xl border bg-card">
                 <Skeleton className="h-5 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
                 <Skeleton className="h-4 w-1/3" />
@@ -146,15 +146,15 @@ export default function DashboardPage() {
         ) : quizzes.length === 0 ? (
           // Empty state
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
-              <PlusCircle className="w-10 h-10 text-indigo-400" />
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-5">
+              <PlusCircle className="w-10 h-10 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-700 mb-2">No quizzes yet</h2>
-            <p className="text-slate-500 mb-6 max-w-xs">
+            <h2 className="text-xl font-semibold text-foreground mb-2">No quizzes yet</h2>
+            <p className="text-muted-foreground mb-6 max-w-xs">
               Create your first quiz and start hosting real-time sessions.
             </p>
             <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+              className="cursor-pointer"
               onClick={() => router.push("/quiz/new")}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
@@ -164,7 +164,7 @@ export default function DashboardPage() {
         ) : (
           // Quiz grid
           <>
-            <h2 className="text-lg font-semibold text-slate-700 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Your Quizzes ({quizzes.length})
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
