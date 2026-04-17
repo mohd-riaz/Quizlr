@@ -135,7 +135,7 @@ export function SignInForm({
               </Button>
             </div>
 
-            <FieldSeparator>or</FieldSeparator>
+            <FieldSeparator color="bg-card">or</FieldSeparator>
 
             <form
               onSubmit={handleSubmit}

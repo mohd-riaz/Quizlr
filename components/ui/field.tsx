@@ -146,9 +146,11 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
 function FieldSeparator({
   children,
   className,
+  color,
   ...props
 }: React.ComponentProps<"div"> & {
   children?: React.ReactNode
+  color ?: `bg-${string}`
 }) {
   return (
     <div
@@ -163,7 +165,7 @@ function FieldSeparator({
       <Separator className="absolute inset-0 top-1/2" />
       {children && (
         <span
-          className="relative mx-auto block w-fit bg-background px-2 text-muted-foreground"
+          className={cn("relative mx-auto block w-fit px-2 text-muted-foreground", color ? color :"bg-background")}
           data-slot="field-separator-content"
         >
           {children}
