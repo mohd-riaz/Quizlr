@@ -51,16 +51,14 @@ export default function GamePage() {
   const handleEndQuestion = async () => {
     try {
       await endQuestion({ sessionId: sessionId as Id<"sessions"> });
-    } catch (err) {
-      console.error("endQuestion error:", err);
+    } catch {
     }
   };
 
   const handleAdvanceQuestion = async () => {
     try {
       await advanceQuestion({ sessionId: sessionId as Id<"sessions"> });
-    } catch (err) {
-      console.error("advanceQuestion error:", err);
+    } catch {
     }
   };
 

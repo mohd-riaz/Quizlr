@@ -62,8 +62,7 @@ export default function QuestionView({
         participantId: participantId as Id<"participants">,
         selectedIndex: idx,
       });
-    } catch (err) {
-      console.error("Failed to submit answer:", err);
+    } catch {
     } finally {
       setIsSubmitting(false);
     }

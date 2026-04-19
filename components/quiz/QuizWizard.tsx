@@ -2,156 +2,36 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useAction } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { PlusCircle, Wand2, AlertCircle, Loader2, ArrowLeft, ArrowRight, Check } from "lucide-react";
-import QuestionCard, {
-  QuestionItem,
-  createBlankQuestion,
-} from "@/components/quiz/QuestionCard";
-import { cn } from "@/lib/utils";
-
-const TIME_LIMIT_OPTIONS = [10, 15, 20, 30] as const;
-type TimeLimit = (typeof TIME_LIMIT_OPTIONS)[number];
-
-const STEPS = ["Quiz Details", "Generate Questions", "Review & Edit"];
+import { AlertCircle, Loader2, ArrowLeft, ArrowRight, Check } from "lucide-react";
+import QuestionManager from "@/components/quiz/QuestionManager";
+import { QuestionItem } from "@/components/quiz/QuestionCard";
 
 export default function QuizWizard() {
   const router = useRouter();
   const createQuiz = useMutation(api.quizzes.create);
-  const generateQuestions = useAction(api.ai.generateQuestions);
 
-  // Step
-  const [step, setStep] = useState(0); // 0-indexed
+  const [step, setStep] = useState(0);
 
-  // Step 1 state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [questionCount, setQuestionCount] = useState(10);
-  const [timeLimit, setTimeLimit] = useState<TimeLimit>(20);
-
-  // Step 2 state
-  const [topic, setTopic] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState<string | null>(null);
-
-  // Step 3 state
+  const [timeLimit, setTimeLimit] = useState(20);
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
 
-  // Save state
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // DnD sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  // ── Step 1 validation ────────────────────────────────────────
-  const step1Valid = title.trim().length > 0;
-
-  // ── Step 2: Generate via AI ──────────────────────────────────
-  const handleGenerate = async () => {
-    if (!topic.trim()) {
-      setGenerateError("Please enter a topic before generating.");
-      return;
-    }
-    setIsGenerating(true);
-    setGenerateError(null);
-    try {
-      const result = await generateQuestions({
-        topic: topic.trim(),
-        count: questionCount,
-        timeLimit,
-      });
-      const items: QuestionItem[] = result.map((q) => ({
-        id: crypto.randomUUID(),
-        text: q.text,
-        options: q.options as [string, string, string, string],
-        correctIndex: q.correctIndex,
-        explanation: q.explanation,
-      }));
-      setQuestions(items);
-      setStep(2);
-    } catch (err) {
-      setGenerateError(
-        err instanceof Error ? err.message : "Generation failed — try again."
-      );
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  // ── Step 3: Question management ──────────────────────────────
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setQuestions((prev) => {
-        const oldIndex = prev.findIndex((q) => q.id === active.id);
-        const newIndex = prev.findIndex((q) => q.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const updateQuestion = (index: number, updated: QuestionItem) => {
-    setQuestions((prev) => {
-      const next = [...prev];
-      next[index] = updated;
-      return next;
-    });
-  };
-
-  const deleteQuestion = (index: number) => {
-    setQuestions((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addQuestion = () => {
-    setQuestions((prev) => [...prev, createBlankQuestion()]);
-  };
-
-  // ── Save ─────────────────────────────────────────────────────
   const handleSave = async () => {
-    if (questions.length === 0) {
-      setSaveError("Add at least one question before saving.");
-      return;
-    }
-    // Basic question validation
+    if (questions.length === 0) { setSaveError("Add at least one question before saving."); return; }
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.text.trim()) {
-        setSaveError(`Question ${i + 1} has no text.`);
-        return;
-      }
-      if (q.options.some((o) => !o.trim())) {
-        setSaveError(`Question ${i + 1} has empty options.`);
-        return;
-      }
+      if (!q.text.trim()) { setSaveError(`Question ${i + 1} has no text.`); return; }
+      if (q.options.some((o) => !o.trim())) { setSaveError(`Question ${i + 1} has empty options.`); return; }
     }
-
     setIsSaving(true);
     setSaveError(null);
     try {
@@ -168,311 +48,121 @@ export default function QuizWizard() {
       });
       router.push("/dashboard");
     } catch (err) {
-      setSaveError(
-        err instanceof Error ? err.message : "Failed to save quiz — try again."
-      );
+      setSaveError("Something went wrong — please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* Step indicator */}
-      <div className="flex items-center gap-0 mb-8">
-        {STEPS.map((label, i) => (
-          <div key={i} className="flex items-center flex-1 last:flex-none">
-            <div className="flex items-center gap-2">
-              <div
-                className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-colors",
-                  i < step
-                    ? "bg-primary border-primary text-primary-foreground"
-                    : i === step
-                      ? "border-primary text-primary bg-background"
-                      : "border-muted text-muted-foreground bg-background"
-                )}
-              >
-                {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
-              </div>
-              <span
-                className={cn(
-                  "text-sm font-medium hidden sm:block",
-                  i === step ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                {label}
-              </span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div
-                className={cn(
-                  "flex-1 h-0.5 mx-2",
-                  i < step ? "bg-primary" : "bg-muted"
-                )}
-              />
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="max-w-2xl mx-auto px-6 pt-12 pb-24">
 
       {/* ── STEP 1: Quiz Details ─────────────────────────────── */}
       {step === 0 && (
-        <div className="flex flex-col gap-5">
-          <h2 className="text-xl font-semibold text-foreground">Quiz Details</h2>
+        <section>
+          <h1 className="text-2xl font-bold tracking-tight mb-1">Quiz details</h1>
+          <p className="text-sm text-muted-foreground mb-6">Give it a name and a pace.</p>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="e.g. World Geography"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={120}
-            />
-          </div>
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="title" className="text-sm font-medium mb-1.5 block">
+                Title <span className="text-muted-foreground">*</span>
+              </label>
+              <Input
+                id="title"
+                placeholder="e.g. World Geography"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={120}
+              />
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="description">
-              Description{" "}
-              <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="What is this quiz about?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="resize-none"
-            />
-          </div>
+            <div>
+              <label htmlFor="description" className="text-sm font-medium mb-1.5 block">
+                Description <span className="text-muted-foreground font-normal">(optional)</span>
+              </label>
+              <Textarea
+                id="description"
+                placeholder="What's this quiz about?"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="resize-none"
+              />
+            </div>
 
-          <Separator />
-
-          <div className="flex flex-col gap-2">
-            <Label>
-              Number of questions:{" "}
-              <span className="font-semibold">{questionCount}</span>
-            </Label>
-            <input
-              type="range"
-              min={1}
-              max={20}
-              value={questionCount}
-              onChange={(e) => setQuestionCount(Number(e.target.value))}
-              className="w-full accent-primary"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>1</span>
-              <span>20</span>
+            <div>
+              <label className="text-sm font-medium mb-3 flex items-center justify-between">
+                <span>Time per question</span>
+                <span className="font-mono text-sm tabular-nums">{timeLimit}s</span>
+              </label>
+              <input
+                type="range"
+                min={5}
+                max={60}
+                step={5}
+                value={timeLimit}
+                onChange={(e) => setTimeLimit(Number(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-[11px] font-mono mt-2 text-muted-foreground">
+                <span>5s</span>
+                <span>60s</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label>Time per question</Label>
-            <div className="flex gap-2">
-              {TIME_LIMIT_OPTIONS.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTimeLimit(t)}
-                  className={cn(
-                    "flex-1 py-2 rounded-lg border-2 text-sm font-semibold transition-colors",
-                    timeLimit === t
-                      ? "bg-primary border-primary text-primary-foreground"
-                      : "border-border text-foreground hover:border-primary/60"
-                  )}
-                >
-                  {t}s
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-end mt-2">
-            <Button
-              className="cursor-pointer"
-              onClick={() => setStep(1)}
-              disabled={!step1Valid}
-            >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
+          <div className="flex items-center justify-between mt-10">
+            <Button variant="ghost" className="cursor-pointer" onClick={() => router.push("/dashboard")}>
+              <ArrowLeft className="w-4 h-4" /> Back
+            </Button>
+            <Button className="cursor-pointer" onClick={() => setStep(1)} disabled={!title.trim()}>
+              Next <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ── STEP 2: Generate Questions ───────────────────────── */}
+      {/* ── STEP 2: Questions ────────────────────────────────── */}
       {step === 1 && (
-        <div className="flex flex-col gap-5">
-          <h2 className="text-xl font-semibold text-foreground">
-            Generate Questions
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Describe the topic and let AI generate {questionCount} questions for
-            you. You&apos;ll be able to edit them in the next step.
-          </p>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="topic">Topic or content</Label>
-            <Textarea
-              id="topic"
-              placeholder={`e.g. "Basic JavaScript concepts for beginners" or paste a paragraph of text`}
-              value={topic}
-              onChange={(e) => {
-                setTopic(e.target.value);
-                setGenerateError(null);
-              }}
-              className="resize-none min-h-[100px]"
-            />
-          </div>
-
-          {generateError && (
-            <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              <span>{generateError}</span>
+        <section>
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Questions</h1>
+              <p className="text-sm text-muted-foreground mt-1">Generate with AI, or add your own.</p>
             </div>
-          )}
-
-          <Button
-            className="cursor-pointer self-start"
-            onClick={handleGenerate}
-            disabled={isGenerating || !topic.trim()}
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating…
-              </>
-            ) : (
-              <>
-                <Wand2 className="w-4 h-4 mr-2" />
-                Generate with AI
-              </>
-            )}
-          </Button>
-
-          <Separator />
-
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">
-              Or skip AI and add questions manually:
-            </p>
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={() => {
-                setQuestions([createBlankQuestion()]);
-                setStep(2);
-              }}
-            >
-              Add questions manually
-            </Button>
-          </div>
-
-          <div className="flex justify-start mt-2">
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={() => setStep(0)}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ── STEP 3: Review & Edit ────────────────────────────── */}
-      {step === 2 && (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">
-              Review &amp; Edit Questions
-            </h2>
-            <span className="text-sm text-muted-foreground">
-              {questions.length} question{questions.length !== 1 ? "s" : ""}
+            <span className="inline-flex items-center h-6 px-2.5 rounded-full text-xs font-mono font-medium border border-border bg-card text-muted-foreground">
+              {questions.length} {questions.length === 1 ? "question" : "questions"}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground -mt-2">
-            Click an option letter to mark the correct answer. Drag{" "}
-            <span className="font-medium">⠿</span> to reorder.
-          </p>
 
-          {questions.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground text-sm border-2 border-dashed rounded-xl">
-              No questions yet — add one below.
-            </div>
-          )}
-
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={questions.map((q) => q.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="flex flex-col gap-3">
-                {questions.map((q, i) => (
-                  <QuestionCard
-                    key={q.id}
-                    question={q}
-                    index={i}
-                    onChange={(updated) => updateQuestion(i, updated)}
-                    onDelete={() => deleteQuestion(i)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-
-          <Button
-            variant="outline"
-            className="cursor-pointer self-start"
-            onClick={addQuestion}
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add question
-          </Button>
+          <QuestionManager
+            questions={questions}
+            onChange={setQuestions}
+            timeLimit={timeLimit}
+          />
 
           {saveError && (
-            <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+            <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3 mt-4">
               <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <span>{saveError}</span>
             </div>
           )}
 
-          <Separator />
-
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={() => setStep(1)}
-              disabled={isSaving}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+          <div className="flex items-center justify-between mt-10">
+            <Button variant="ghost" className="cursor-pointer" onClick={() => setStep(0)} disabled={isSaving}>
+              <ArrowLeft className="w-4 h-4" /> Back
             </Button>
             <Button
               className="cursor-pointer"
               onClick={handleSave}
               disabled={isSaving || questions.length === 0}
             >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving…
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Save Quiz
-                </>
-              )}
+              {isSaving
+                ? <><Loader2 className="w-4 h-4 animate-spin" />Saving…</>
+                : <><Check className="w-4 h-4" />Save Quiz</>}
             </Button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

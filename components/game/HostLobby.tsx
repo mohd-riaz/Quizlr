@@ -36,8 +36,7 @@ export default function HostLobby({
   const handleStart = async () => {
     try {
       await startSession({ sessionId: sessionId as Id<"sessions"> });
-    } catch (err) {
-      console.error("Failed to start session:", err);
+    } catch {
     }
   };
 

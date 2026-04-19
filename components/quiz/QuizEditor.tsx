@@ -5,35 +5,12 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { PlusCircle, Save, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
-import QuestionCard, {
-  QuestionItem,
-  createBlankQuestion,
-} from "@/components/quiz/QuestionCard";
-import { cn } from "@/lib/utils";
-
-const TIME_LIMIT_OPTIONS = [10, 15, 20, 30] as const;
-type TimeLimit = (typeof TIME_LIMIT_OPTIONS)[number];
+import { AlertCircle, Loader2, ArrowLeft, Save } from "lucide-react";
+import QuestionManager from "@/components/quiz/QuestionManager";
+import { QuestionItem } from "@/components/quiz/QuestionCard";
 
 interface ExistingQuestion {
   _id: string;
@@ -64,84 +41,33 @@ export default function QuizEditor({
 
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription ?? "");
-  const [timeLimit, setTimeLimit] = useState<TimeLimit>(
-    (TIME_LIMIT_OPTIONS.includes(initialTimeLimit as TimeLimit)
-      ? initialTimeLimit
-      : 20) as TimeLimit
+  const [timeLimit, setTimeLimit] = useState(
+    initialTimeLimit >= 5 && initialTimeLimit <= 60 ? initialTimeLimit : 20
   );
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Initialise questions from server data
   useEffect(() => {
-    const items: QuestionItem[] = initialQuestions.map((q) => ({
+    setQuestions(initialQuestions.map((q) => ({
       id: crypto.randomUUID(),
       text: q.text,
       options: q.options as [string, string, string, string],
       correctIndex: q.correctIndex,
       explanation: q.explanation,
-    }));
-    setQuestions(items);
+    })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setQuestions((prev) => {
-        const oldIndex = prev.findIndex((q) => q.id === active.id);
-        const newIndex = prev.findIndex((q) => q.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const updateQuestion = (index: number, updated: QuestionItem) => {
-    setQuestions((prev) => {
-      const next = [...prev];
-      next[index] = updated;
-      return next;
-    });
-  };
-
-  const deleteQuestion = (index: number) => {
-    setQuestions((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addQuestion = () => {
-    setQuestions((prev) => [...prev, createBlankQuestion()]);
-  };
-
   const handleSave = async () => {
-    if (!title.trim()) {
-      setSaveError("Title is required.");
-      return;
-    }
-    if (questions.length === 0) {
-      setSaveError("Add at least one question before saving.");
-      return;
-    }
+    if (!title.trim()) { setSaveError("Title is required."); return; }
+    if (questions.length === 0) { setSaveError("Add at least one question before saving."); return; }
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.text.trim()) {
-        setSaveError(`Question ${i + 1} has no text.`);
-        return;
-      }
-      if (q.options.some((o) => !o.trim())) {
-        setSaveError(`Question ${i + 1} has empty options.`);
-        return;
-      }
+      if (!q.text.trim()) { setSaveError(`Question ${i + 1} has no text.`); return; }
+      if (q.options.some((o) => !o.trim())) { setSaveError(`Question ${i + 1} has empty options.`); return; }
     }
-
     setIsSaving(true);
     setSaveError(null);
     try {
@@ -159,31 +85,30 @@ export default function QuizEditor({
       });
       router.push("/dashboard");
     } catch (err) {
-      setSaveError(
-        err instanceof Error ? err.message : "Failed to save — try again."
-      );
+      setSaveError("Something went wrong — please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Back to dashboard"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-2xl font-bold text-foreground">Edit Quiz</h1>
-      </div>
+    <div className="max-w-2xl mx-auto px-6 pt-12 pb-24">
+
+      <button
+        onClick={() => router.push("/dashboard")}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back
+      </button>
+      <h1 className="text-2xl font-bold tracking-tight mb-1">Edit quiz</h1>
+      <p className="text-sm text-muted-foreground mb-8">Update details and questions.</p>
 
       {/* Meta fields */}
-      <div className="bg-card border rounded-xl p-5 mb-5 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="edit-title">Title *</Label>
+      <div className="space-y-5 mb-8">
+        <div>
+          <label htmlFor="edit-title" className="text-sm font-medium mb-1.5 block">
+            Title <span className="text-muted-foreground">*</span>
+          </label>
           <Input
             id="edit-title"
             value={title}
@@ -191,11 +116,11 @@ export default function QuizEditor({
             maxLength={120}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="edit-desc">
-            Description{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
-          </Label>
+
+        <div>
+          <label htmlFor="edit-desc" className="text-sm font-medium mb-1.5 block">
+            Description <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
           <Textarea
             id="edit-desc"
             value={description}
@@ -203,98 +128,57 @@ export default function QuizEditor({
             className="resize-none"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <Label>Time per question</Label>
-          <div className="flex gap-2">
-            {TIME_LIMIT_OPTIONS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTimeLimit(t)}
-                className={cn(
-                  "flex-1 py-2 rounded-lg border-2 text-sm font-semibold transition-colors",
-                  timeLimit === t
-                    ? "bg-primary border-primary text-primary-foreground"
-                    : "border-border text-foreground hover:border-primary/60"
-                )}
-              >
-                {t}s
-              </button>
-            ))}
+
+        <div>
+          <label className="text-sm font-medium mb-3 flex items-center justify-between">
+            <span>Time per question</span>
+            <span className="font-mono text-sm tabular-nums">{timeLimit}s</span>
+          </label>
+          <input
+            type="range"
+            min={5}
+            max={60}
+            step={5}
+            value={timeLimit}
+            onChange={(e) => setTimeLimit(Number(e.target.value))}
+            className="w-full accent-primary"
+          />
+          <div className="flex justify-between text-[11px] font-mono mt-2 text-muted-foreground">
+            <span>5s</span>
+            <span>60s</span>
           </div>
         </div>
       </div>
 
-      {/* Question list */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-semibold text-foreground">
-          Questions ({questions.length})
-        </h2>
+      {/* Questions heading */}
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight">Questions</h2>
+          <p className="text-sm text-muted-foreground mt-1">Generate with AI, or add your own.</p>
+        </div>
+        <span className="inline-flex items-center h-6 px-2.5 rounded-full text-xs font-mono font-medium border border-border bg-card text-muted-foreground">
+          {questions.length} {questions.length === 1 ? "question" : "questions"}
+        </span>
       </div>
 
-      {questions.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground text-sm border-2 border-dashed rounded-xl mb-4">
-          No questions — add one below.
-        </div>
-      )}
-
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={questions.map((q) => q.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="flex flex-col gap-3 mb-4">
-            {questions.map((q, i) => (
-              <QuestionCard
-                key={q.id}
-                question={q}
-                index={i}
-                onChange={(updated) => updateQuestion(i, updated)}
-                onDelete={() => deleteQuestion(i)}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      <Button
-        variant="outline"
-        className="cursor-pointer mb-6"
-        onClick={addQuestion}
-      >
-        <PlusCircle className="w-4 h-4 mr-2" />
-        Add question
-      </Button>
+      <QuestionManager
+        questions={questions}
+        onChange={setQuestions}
+        timeLimit={timeLimit}
+      />
 
       {saveError && (
-        <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3 mb-4">
+        <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3 mt-4">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <span>{saveError}</span>
         </div>
       )}
 
-      <Separator className="mb-4" />
-
-      <div className="flex justify-end">
-        <Button
-          className="cursor-pointer"
-          onClick={handleSave}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Saving…
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </>
-          )}
+      <div className="flex justify-end mt-10">
+        <Button className="cursor-pointer" onClick={handleSave} disabled={isSaving}>
+          {isSaving
+            ? <><Loader2 className="w-4 h-4 animate-spin" />Saving…</>
+            : <><Save className="w-4 h-4" />Save Changes</>}
         </Button>
       </div>
     </div>

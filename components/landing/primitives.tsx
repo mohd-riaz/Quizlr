@@ -1,4 +1,20 @@
 import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
+const VARIANT_MAP = {
+  primary: "default",
+  outline: "outline",
+  ghost:   "ghost",
+} as const;
+
+// shadcn size + any per-size overrides
+const SIZE_MAP = {
+  sm: { size: "default" as const, cls: "px-3" },
+  md: { size: "lg"      as const, cls: "px-4" },
+  lg: { size: "lg"      as const, cls: "h-11 px-5 text-[0.95rem] rounded-[calc(var(--radius)+2px)]" },
+};
 
 export function Btn({
   children,
@@ -17,21 +33,22 @@ export function Btn({
   onClick?: () => void;
   type?: "button" | "submit";
 }) {
-  const base =
-    "inline-flex items-center justify-center gap-2 font-medium text-sm transition-all cursor-pointer select-none whitespace-nowrap border overflow-hidden";
-  const variants = {
-    primary: "bg-primary text-primary-foreground border-transparent hover:opacity-90",
-    outline: "bg-transparent text-foreground border-border hover:bg-muted",
-    ghost: "bg-transparent text-foreground border-transparent hover:bg-muted",
-  };
-  const sizes = {
-    sm: "h-8 px-3 text-sm rounded-md",
-    md: "h-10 px-4 rounded-lg",
-    lg: "h-11 px-5 text-[0.95rem] rounded-[calc(var(--radius)+2px)]",
-  };
-  const cls = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
-  if (href) return <Link href={href} className={cls}>{children}</Link>;
-  return <button type={type ?? "button"} className={cls} onClick={onClick}>{children}</button>;
+  const v = VARIANT_MAP[variant];
+  const { size: s, cls } = SIZE_MAP[size];
+  const merged = cn(cls, "overflow-hidden", className);
+
+  if (href) {
+    return (
+      <Link href={href} className={cn(buttonVariants({ variant: v, size: s }), merged)}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Button type={type ?? "button"} variant={v} size={s} className={merged} onClick={onClick}>
+      {children}
+    </Button>
+  );
 }
 
 export function Badge({
@@ -44,12 +61,13 @@ export function Badge({
   style?: React.CSSProperties;
 }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-xs font-medium border border-border bg-card text-muted-foreground ${className}`}
+    <UiBadge
+      variant="outline"
+      className={cn("h-6 rounded-full px-2.5 bg-card text-muted-foreground", className)}
       style={style}
     >
       {children}
-    </span>
+    </UiBadge>
   );
 }
 
@@ -64,7 +82,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`bg-card text-card-foreground border border-border rounded-[calc(var(--radius)+4px)] ${className}`}
+      className={cn("bg-card text-card-foreground border border-border rounded-[calc(var(--radius)+4px)]", className)}
       style={style}
     >
       {children}

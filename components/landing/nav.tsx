@@ -1,13 +1,22 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { Btn, Icons } from "./primitives";
 
-export function Nav({ isDark, onToggleTheme }: { isDark: boolean; onToggleTheme: () => void }) {
+export function Nav() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isDark = resolvedTheme === "dark";
+
   return (
     <header
       className="sticky top-0 z-40 backdrop-blur-md border-b border-border"
       style={{ background: "color-mix(in oklch, var(--background) 80%, transparent)" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr]">
         <Link href="/" className="text-2xl font-bold tracking-tight">
           Quiz<span style={{ color: "var(--muted-foreground)" }}>lr</span>
         </Link>
@@ -30,11 +39,11 @@ export function Nav({ isDark, onToggleTheme }: { isDark: boolean; onToggleTheme:
 
         <div className="flex items-center justify-end gap-1 sm:gap-2 shrink-0">
           <button
-            onClick={onToggleTheme}
+            onClick={() => setTheme(isDark ? "light" : "dark")}
             className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted transition-colors"
             aria-label="Toggle theme"
           >
-            {isDark ? Icons.sun : Icons.moon}
+            {mounted ? (isDark ? Icons.sun : Icons.moon) : <span className="w-4 h-4" />}
           </button>
           <Link
             href="/signin"

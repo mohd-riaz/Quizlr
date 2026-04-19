@@ -47,7 +47,6 @@ function initPlayers(): Player[] {
 // ── Component ────────────────────────────────────────────────────────────────
 
 export function LandingPage() {
-  const [isDark, setIsDark]               = useState(true);
   const [timer, setTimer]                 = useState(12);
   const [answeredCount, setAnsweredCount] = useState(23);
   const [players, setPlayers]             = useState<Player[]>(initPlayers);
@@ -61,16 +60,6 @@ export function LandingPage() {
   const [aiDone, setAiDone]               = useState(false);
   const [step1Text, setStep1Text]         = useState("");
   const [aiTopicText, setAiTopicText]     = useState("");
-
-  // Theme
-  useEffect(() => {
-    const stored = localStorage.getItem("quizlr-theme");
-    setIsDark(stored ? stored === "dark" : true);
-  }, []);
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("quizlr-theme", isDark ? "dark" : "light");
-  }, [isDark]);
 
   // Timer countdown
   useEffect(() => {
@@ -178,7 +167,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Nav isDark={isDark} onToggleTheme={() => setIsDark((d) => !d)} />
+      <Nav />
       <HeroSection
         timer={timer}
         answeredCount={answeredCount}

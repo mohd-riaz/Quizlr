@@ -5,11 +5,8 @@ import { useQuery, useConvex, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DashboardNav from "@/components/dashboard/DashboardNav";
 import QuizCard from "@/components/quiz/QuizCard";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -17,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PlusCircle, Users } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -25,6 +21,7 @@ export default function DashboardPage() {
   const quizzes = useQuery(api.quizzes.listByHost);
   const createSession = useMutation(api.sessions.create);
 
+  const [search, setSearch] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
@@ -35,34 +32,21 @@ export default function DashboardPage() {
     setHostingQuizId(quizId);
     try {
       const result = await createSession({ quizId: quizId as Id<"quizzes"> });
-      // Store host participant ID so the game page recognises this browser as host
-      localStorage.setItem(
-        `quizlr_participant_${result.sessionId}`,
-        result.hostParticipantId
-      );
+      localStorage.setItem(`quizlr_participant_${result.sessionId}`, result.hostParticipantId);
       router.push(`/game/${result.sessionId}`);
-    } catch (err) {
-      console.error("Failed to create session:", err);
+    } catch {
     } finally {
       setHostingQuizId(null);
     }
   };
 
   const handleJoin = async () => {
-    if (!joinCode.trim()) {
-      setJoinError("Please enter a join code.");
-      return;
-    }
+    if (!joinCode.trim()) { setJoinError("Please enter a join code."); return; }
     setJoining(true);
     setJoinError(null);
     try {
-      const session = await convex.query(api.sessions.getByJoinCode, {
-        joinCode: joinCode.trim(),
-      });
-      if (!session) {
-        setJoinError("No active session found with that code.");
-        return;
-      }
+      const session = await convex.query(api.sessions.getByJoinCode, { joinCode: joinCode.trim() });
+      if (!session) { setJoinError("No active session found with that code."); return; }
       router.push(`/game/${session._id}`);
     } catch {
       setJoinError("Something went wrong. Please try again.");
@@ -71,104 +55,101 @@ export default function DashboardPage() {
     }
   };
 
+  const q = search.trim().toLowerCase();
+  const filtered = quizzes?.filter((quiz) => {
+    if (!q) return true;
+    return (
+      quiz.title.toLowerCase().includes(q) ||
+      (quiz.description ?? "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader />
+      <DashboardNav />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Top actions */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <Button
-            className="cursor-pointer"
-            onClick={() => router.push("/quiz/new")}
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Create Quiz
-          </Button>
+      <main>
+        <div className="max-w-5xl mx-auto px-6 pt-14 pb-24">
 
-          <Button variant="outline" className="cursor-pointer" onClick={() => setJoinOpen(true)}>
-            <Users className="w-4 h-4 mr-2" />
-            Join Quiz
-          </Button>
-
-          <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
-            <DialogContent className="sm:max-w-sm">
-              <DialogHeader>
-                <DialogTitle>Join a Quiz</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col gap-4 mt-2">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="joinCode">Enter join code</Label>
-                  <Input
-                    id="joinCode"
-                    placeholder="e.g. AB12CD"
-                    value={joinCode}
-                    onChange={(e) => {
-                      setJoinCode(e.target.value.toUpperCase());
-                      setJoinError(null);
-                    }}
-                    maxLength={6}
-                    className="uppercase tracking-widest text-center text-lg font-mono"
-                    onKeyDown={(e) => e.key === "Enter" && handleJoin()}
-                  />
-                </div>
-                {joinError && (
-                  <p className="text-sm text-destructive">{joinError}</p>
-                )}
-                <Button
-                  className="cursor-pointer"
-                  onClick={handleJoin}
-                  disabled={joining}
-                >
-                  {joining ? "Joining..." : "Join"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Quiz grid */}
-        {quizzes === undefined ? (
-          // Loading skeletons
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-3 p-5 rounded-xl border bg-card">
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-4 w-1/3" />
-                <div className="flex gap-2 mt-2">
-                  <Skeleton className="h-8 flex-1" />
-                  <Skeleton className="h-8 flex-1" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : quizzes.length === 0 ? (
-          // Empty state
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-5">
-              <PlusCircle className="w-10 h-10 text-primary" />
+          {/* Page heading + CTAs */}
+          <div className="mb-10">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
+              Your quizzes.
+            </h1>
+            <div className="mt-6 flex items-center gap-2">
+              <button
+                onClick={() => router.push("/quiz/new")}
+                className="inline-flex items-center gap-2 h-9 px-3.5 text-sm font-medium rounded-lg bg-foreground text-background hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Create Quiz
+              </button>
+              <button
+                onClick={() => setJoinOpen(true)}
+                className="inline-flex items-center gap-2 h-9 px-3.5 text-sm font-medium rounded-lg bg-card border border-border text-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 11h-6M19 8v6" />
+                </svg>
+                Join Quiz
+              </button>
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">No quizzes yet</h2>
-            <p className="text-muted-foreground mb-6 max-w-xs">
-              Create your first quiz and start hosting real-time sessions.
-            </p>
-            <Button
-              className="cursor-pointer"
-              onClick={() => router.push("/quiz/new")}
-            >
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Create your first quiz
-            </Button>
           </div>
-        ) : (
-          // Quiz grid
-          <>
-            <h2 className="text-lg font-semibold text-foreground mb-4">
-              Your Quizzes ({quizzes.length})
+
+          {/* Section header */}
+          <div className="flex items-center gap-3 mb-4 flex-wrap">
+            <h2
+              className="text-xs font-semibold uppercase tracking-[0.04em] text-muted-foreground"
+            >
+              Your Quizzes
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {quizzes.map((quiz) => (
+            {quizzes !== undefined && (
+              <span className="inline-flex items-center h-6 px-2.5 rounded-full text-xs font-mono font-medium border border-border bg-card text-muted-foreground">
+                {quizzes.length}
+              </span>
+            )}
+            <div className="ml-auto flex items-center gap-2 pl-3 pr-2 h-9 rounded-md border border-border bg-card w-full sm:w-72">
+              <svg className="w-3.5 h-3.5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+              </svg>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-transparent outline-none text-sm flex-1 placeholder:text-muted-foreground"
+                placeholder="Search quizzes…"
+              />
+            </div>
+          </div>
+
+          {/* Content */}
+          {quizzes === undefined ? (
+            <div className="grid md:grid-cols-2 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-card border border-border rounded-[calc(var(--radius)+4px)] p-5 flex flex-col gap-4">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-9 flex-1" />
+                    <Skeleton className="h-9 flex-1" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : q && filtered?.length === 0 ? (
+            <div className="bg-card border border-border rounded-[calc(var(--radius)+4px)] p-10 text-center text-sm text-muted-foreground">
+              No quizzes match that search.
+            </div>
+          ) : quizzes.length === 0 ? (
+            <div className="grid md:grid-cols-2 gap-3">
+              <NewQuizTile onClick={() => router.push("/quiz/new")} />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-3">
+              {(filtered ?? quizzes).map((quiz) => (
                 <QuizCard
                   key={quiz._id}
                   quiz={quiz}
@@ -176,10 +157,57 @@ export default function DashboardPage() {
                   isHosting={hostingQuizId === quiz._id}
                 />
               ))}
+              {!q && <NewQuizTile onClick={() => router.push("/quiz/new")} />}
             </div>
-          </>
-        )}
+          )}
+        </div>
       </main>
+
+      {/* Join dialog */}
+      <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Join a Quiz</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-2">
+            <input
+              placeholder="e.g. AB12CD"
+              value={joinCode}
+              onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setJoinError(null); }}
+              maxLength={6}
+              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-center text-lg font-mono tracking-widest uppercase outline-none focus:ring-1 focus:ring-foreground"
+              onKeyDown={(e) => e.key === "Enter" && handleJoin()}
+            />
+            {joinError && <p className="text-sm text-destructive">{joinError}</p>}
+            <button
+              onClick={handleJoin}
+              disabled={joining}
+              className="h-9 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity cursor-pointer"
+            >
+              {joining ? "Joining…" : "Join"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function NewQuizTile({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-transparent border border-border border-dashed rounded-[calc(var(--radius)+4px)] p-5 flex flex-col items-start text-left gap-3 transition-all duration-150 hover:-translate-y-px hover:border-[color-mix(in_oklch,var(--foreground)_25%,var(--border))] cursor-pointer w-full"
+    >
+      <span className="w-9 h-9 rounded-md grid place-items-center bg-muted text-foreground">
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </span>
+      <div>
+        <div className="text-base font-semibold tracking-tight">New quiz</div>
+        <div className="text-sm mt-0.5 text-muted-foreground">Paste a topic. AI does the rest.</div>
+      </div>
+    </button>
   );
 }

@@ -46,9 +46,7 @@ export default function NicknameEntry({
       localStorage.setItem(`quizlr_participant_${sessionId}`, participantId);
       onJoined(participantId, trimmed);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to join — try again."
-      );
+      setError("Something went wrong — please try again.");
     } finally {
       setIsJoining(false);
     }
