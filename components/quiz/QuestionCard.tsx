@@ -80,6 +80,7 @@ export default function QuestionCard({
   const [showAiPanel, setShowAiPanel] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: question.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
@@ -98,9 +99,12 @@ export default function QuestionCard({
   const handleAiGenerate = async () => {
     if (!onAiGenerate || !aiPrompt.trim()) return;
     setIsAiGenerating(true);
+    setAiError(null);
     try {
       await onAiGenerate(aiPrompt.trim());
       setShowAiPanel(false);
+    } catch {
+      setAiError("Something went wrong — please try again.");
     } finally {
       setIsAiGenerating(false);
     }
@@ -166,10 +170,13 @@ export default function QuestionCard({
           </p>
           <Textarea
             value={aiPrompt}
-            onChange={(e) => setAiPrompt(e.target.value)}
+            onChange={(e) => { setAiPrompt(e.target.value); setAiError(null); }}
             placeholder="e.g. The causes of World War I — focus on the assassination of Franz Ferdinand"
             className="text-sm resize-none min-h-[60px]"
           />
+          {aiError && (
+            <p className="text-xs text-destructive">{aiError}</p>
+          )}
           <div className="flex gap-2">
             <button
               onClick={handleAiGenerate}
