@@ -65,6 +65,7 @@ interface QuestionCardProps {
   onChange: (updated: QuestionItem) => void;
   onDelete: () => void;
   onAiGenerate?: (prompt: string) => Promise<void>;
+  onAiCancel?: () => void;
   defaultTopic?: string;
 }
 
@@ -74,6 +75,7 @@ export default function QuestionCard({
   onChange,
   onDelete,
   onAiGenerate,
+  onAiCancel,
   defaultTopic = "",
 }: QuestionCardProps) {
   const [showExplanation, setShowExplanation] = useState(!!question.explanation);
@@ -190,7 +192,11 @@ export default function QuestionCard({
               )}
             </button>
             <button
-              onClick={() => setShowAiPanel(false)}
+              onClick={() => {
+                if (isAiGenerating) onAiCancel?.();
+                setIsAiGenerating(false);
+                setShowAiPanel(false);
+              }}
               className="inline-flex items-center h-8 px-3 text-xs font-medium rounded-md border border-border hover:bg-muted transition-colors cursor-pointer"
             >
               Cancel

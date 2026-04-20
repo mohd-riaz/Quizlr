@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -20,7 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, AlertCircle, Loader2, PlusCircle } from "lucide-react";
+import { Wand2, AlertCircle, Loader2, PlusCircle, X } from "lucide-react";
 import QuestionCard, { QuestionItem, createBlankQuestion } from "@/components/quiz/QuestionCard";
 
 interface QuestionManagerProps {
@@ -38,6 +38,10 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [pendingReplace, setPendingReplace] = useState(false);
 
+  // Cancel flags — refs so they're readable inside async closures without stale state
+  const bulkCancelledRef = useRef(false);
+  const cancelledQuestionsRef = useRef<Set<string>>(new Set());
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -45,11 +49,13 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
 
   const runGenerate = async () => {
     if (!topic.trim()) { setGenerateError("Enter a topic first."); return; }
+    bulkCancelledRef.current = false;
     setIsGenerating(true);
     setGenerateError(null);
     setPendingReplace(false);
     try {
       const result = await generateQuestions({ topic: topic.trim(), count: genCount, timeLimit });
+      if (bulkCancelledRef.current) return;
       onChange(result.map((q) => ({
         id: crypto.randomUUID(),
         text: q.text,
@@ -57,11 +63,16 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
         correctIndex: q.correctIndex,
         explanation: q.explanation,
       })));
-    } catch (err) {
-      setGenerateError("Something went wrong — please try again.");
+    } catch {
+      if (!bulkCancelledRef.current) setGenerateError("Something went wrong — please try again.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleCancelBulk = () => {
+    bulkCancelledRef.current = true;
+    setIsGenerating(false);
   };
 
   const handleGenerateAll = () => {
@@ -69,8 +80,10 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
     runGenerate();
   };
 
-  const handleAiGenerateQuestion = async (index: number, prompt: string) => {
+  const handleAiGenerateQuestion = async (questionId: string, index: number, prompt: string) => {
+    cancelledQuestionsRef.current.delete(questionId);
     const result = await generateQuestions({ topic: prompt, count: 1, timeLimit });
+    if (cancelledQuestionsRef.current.has(questionId)) return;
     const q = result[0];
     const next = [...questions];
     next[index] = {
@@ -81,6 +94,10 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
       explanation: q.explanation,
     };
     onChange(next);
+  };
+
+  const handleCancelQuestionGen = (questionId: string) => {
+    cancelledQuestionsRef.current.add(questionId);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -159,11 +176,18 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
           </div>
         )}
 
-        <Button className="cursor-pointer" onClick={handleGenerateAll} disabled={isGenerating || !topic.trim()}>
-          {isGenerating
-            ? <><Loader2 className="w-4 h-4 animate-spin" />Generating…</>
-            : <><Wand2 className="w-4 h-4" />Generate</>}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button className="cursor-pointer" onClick={handleGenerateAll} disabled={isGenerating || !topic.trim()}>
+            {isGenerating
+              ? <><Loader2 className="w-4 h-4 animate-spin" />Generating…</>
+              : <><Wand2 className="w-4 h-4" />Generate</>}
+          </Button>
+          {isGenerating && (
+            <Button variant="outline" className="cursor-pointer" onClick={handleCancelBulk}>
+              <X className="w-4 h-4" />Cancel
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Empty state */}
@@ -184,7 +208,8 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
                 index={i}
                 onChange={(updated) => updateQuestion(i, updated)}
                 onDelete={() => onChange(questions.filter((_, j) => j !== i))}
-                onAiGenerate={(prompt) => handleAiGenerateQuestion(i, prompt)}
+                onAiGenerate={(prompt) => handleAiGenerateQuestion(q.id, i, prompt)}
+                onAiCancel={() => handleCancelQuestionGen(q.id)}
                 defaultTopic={topic}
               />
             ))}
