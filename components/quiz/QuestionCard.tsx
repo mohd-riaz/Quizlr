@@ -3,10 +3,37 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2, ChevronDown, ChevronUp, Wand2, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+
+function AutoInput({ value, onChange, placeholder, className }: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.style.height = "auto";
+      ref.current.style.height = ref.current.scrollHeight + "px";
+    }
+  }, [value]);
+  return (
+    <textarea
+      ref={ref}
+      rows={1}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className={cn(
+        "flex w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm shadow-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none overflow-hidden leading-snug",
+        className
+      )}
+    />
+  );
+}
 
 export interface QuestionItem {
   id: string;
@@ -181,11 +208,11 @@ export default function QuestionCard({
               >
                 {OPTION_LABELS[i]}
               </button>
-              <Input
+              <AutoInput
                 value={opt}
-                onChange={(e) => updateOption(i, e.target.value)}
+                onChange={(v) => updateOption(i, v)}
                 placeholder={`Option ${OPTION_LABELS[i]}`}
-                className="text-sm h-8"
+                className="text-sm min-h-8"
               />
             </div>
           );
@@ -202,11 +229,11 @@ export default function QuestionCard({
           {showExplanation ? "Hide explanation" : "Add explanation (optional)"}
         </button>
         {showExplanation && (
-          <Input
+          <AutoInput
             value={question.explanation ?? ""}
-            onChange={(e) => onChange({ ...question, explanation: e.target.value || undefined })}
+            onChange={(v) => onChange({ ...question, explanation: v || undefined })}
             placeholder="Explain the correct answer…"
-            className="text-sm h-8"
+            className="text-sm min-h-8"
           />
         )}
       </div>
