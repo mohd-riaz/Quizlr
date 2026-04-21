@@ -134,13 +134,12 @@ export default function QuestionView({
         </p>
       )}
 
-      {/* Host: manual end button (appears after timer expires) */}
-      {isHost && timerExpired && (
+      {isHost && !timerExpired && (
         <Button
           onClick={onEndQuestion}
           className="self-center font-semibold px-6"
         >
-          Show Results
+          End Early
         </Button>
       )}
     </div>

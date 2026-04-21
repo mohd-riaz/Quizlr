@@ -130,7 +130,7 @@ export default function QuestionManager({ questions, onChange, timeLimit, initia
       <div className="bg-card border border-border rounded-[calc(var(--radius)+4px)] p-5 mb-4">
         <div className="flex items-center gap-2 mb-3">
           <span
-            className="w-7 h-7 rounded-md grid place-items-center flex-shrink-0"
+            className="w-7 h-7 rounded-md grid place-items-center shrink-0"
             style={{
               background: "color-mix(in oklch, oklch(0.55 0.18 265) 15%, var(--card))",
               color: "oklch(0.55 0.18 265)",
@@ -146,7 +146,7 @@ export default function QuestionManager({ questions, onChange, timeLimit, initia
           placeholder={`e.g. "Basic JavaScript concepts for beginners" or paste a paragraph of text`}
           value={topic}
           onChange={(e) => { setTopic(e.target.value); setGenerateError(null); setPendingReplace(false); }}
-          className="resize-none min-h-[80px] text-sm mb-4"
+          className="resize-none min-h-20 text-sm mb-4"
         />
 
         <div className="mb-4">
@@ -166,7 +166,7 @@ export default function QuestionManager({ questions, onChange, timeLimit, initia
 
         {generateError && (
           <div className="flex items-start gap-2 text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg p-3 mb-3">
-            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
             <span>{generateError}</span>
           </div>
         )}
