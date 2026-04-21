@@ -2,12 +2,6 @@ import { Badge, Btn, Icons, PulsingDot } from "./primitives";
 import { HeroMockup } from "./hero-mockup";
 
 const JOIN_CODE = ["7", "K", "X", "2", "M", "9"];
-const MARQUEE_TOPICS = [
-  "🪐 Space & Astronomy", "Jazz history · 1950s", "World capitals · hard",
-  "React 19 trivia", "Medieval Europe", "Marine biology basics",
-  "The Apollo program", "Food & wine pairing", "Tour de France legends",
-  "Modernist architecture", "The periodic table", "Blockbuster films · 2010s",
-];
 
 type Player = { name: string; color: string; score: number; id: number };
 

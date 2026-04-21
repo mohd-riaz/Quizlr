@@ -4,7 +4,6 @@ import { useQuery } from "convex/react";
 import { useParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import DashboardNav from "@/components/dashboard/DashboardNav";
 import QuizEditor from "@/components/quiz/QuizEditor";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -15,8 +14,7 @@ export default function EditQuizPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardNav />
+    <>
       {quiz === undefined ? (
         // Loading
         <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-4">
@@ -38,6 +36,6 @@ export default function EditQuizPage() {
           initialQuestions={quiz.questions}
         />
       )}
-    </div>
+    </>
   );
 }

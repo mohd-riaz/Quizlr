@@ -5,7 +5,6 @@ import { useQuery, useConvex, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import DashboardNav from "@/components/dashboard/DashboardNav";
 import QuizCard from "@/components/quiz/QuizCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -65,9 +64,7 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardNav />
-
+    <>
       <main>
         <div className="max-w-5xl mx-auto px-6 pt-14 pb-24">
 
@@ -189,7 +186,7 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
 
