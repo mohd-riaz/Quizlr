@@ -93,7 +93,7 @@ export default function GamePage() {
   if (!participantId && session.status !== "lobby") {
     return (
       <GameShell>
-        <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-4">
+        <div className="flex flex-col items-center justify-center gap-4 px-4">
           <p className="text-foreground text-center text-lg font-semibold">
             This session has already started.
           </p>
@@ -224,6 +224,6 @@ export default function GamePage() {
 
 function GameShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">{children}</div>
+    <div className="bg-background text-foreground">{children}</div>
   );
 }

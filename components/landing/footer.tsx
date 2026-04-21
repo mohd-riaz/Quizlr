@@ -1,4 +1,4 @@
-import { PulsingDot } from "./primitives";
+import { PulsingDot } from "../primitives";
 
 export function Footer() {
   return (

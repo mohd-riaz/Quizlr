@@ -1,4 +1,4 @@
-import { Badge, Card, PulsingDot } from "./primitives";
+import { Badge, Card, PulsingDot } from "../primitives";
 
 export function FeaturesBento({ sparkData, aps }: { sparkData: number[]; aps: number }) {
   return (

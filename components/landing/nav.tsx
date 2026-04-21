@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { Btn, Icons } from "./primitives";
+import { Btn, Icons } from "../primitives";
+import ThemeToggle from "../theme-toggle";
 
 export function Nav() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => setMounted(true), []);
-  const isDark = resolvedTheme === "dark";
-
   return (
     <header
       className="sticky top-0 z-40 backdrop-blur-md border-b border-border"
@@ -39,13 +32,7 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center justify-end gap-1 sm:gap-2 shrink-0">
-          <button
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-muted transition-colors"
-            aria-label="Toggle theme"
-          >
-            {mounted ? (isDark ? Icons.sun : Icons.moon) : <span className="w-4 h-4" />}
-          </button>
+          <ThemeToggle />
           <Link
             href="/signin"
             className="hidden sm:inline-flex items-center h-8 px-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors whitespace-nowrap"

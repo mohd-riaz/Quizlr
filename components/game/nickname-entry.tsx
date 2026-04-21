@@ -45,15 +45,15 @@ export default function NicknameEntry({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased">
+    <div className="bg-background text-foreground antialiased">
       {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-md border-b border-border bg-background/80">
+      {/* <header className="sticky top-0 z-40 backdrop-blur-md border-b border-border bg-background/80">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center">
           <span className="text-[17px] font-bold tracking-tight">
             Quiz<span className="text-muted-foreground">lr</span>
           </span>
         </div>
-      </header>
+      </header> */}
 
       <main className="max-w-lg mx-auto px-6 pt-20 pb-24">
         {/* Hero */}

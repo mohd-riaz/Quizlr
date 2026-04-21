@@ -1,4 +1,4 @@
-import { Badge, Btn, Icons } from "./primitives";
+import { Badge, Btn, Icons } from "../primitives";
 
 export function CtaSection() {
   return (

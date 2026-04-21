@@ -1,4 +1,4 @@
-import { Badge, Card } from "./primitives";
+import { Badge, Card } from "../primitives";
 
 export function HowItWorks({ step1Text }: { step1Text: string }) {
   return (

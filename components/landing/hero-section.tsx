@@ -1,4 +1,4 @@
-import { Badge, Btn, Icons, PulsingDot } from "./primitives";
+import { Badge, Btn, Icons, PulsingDot } from "../primitives";
 import { HeroMockup } from "./hero-mockup";
 
 const JOIN_CODE = ["7", "K", "X", "2", "M", "9"];

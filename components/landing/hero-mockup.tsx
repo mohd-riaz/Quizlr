@@ -1,4 +1,4 @@
-import { Badge, Card, PulsingDot } from "./primitives";
+import { Badge, Card, PulsingDot } from "../primitives";
 
 type Player = { name: string; color: string; score: number; id: number };
 

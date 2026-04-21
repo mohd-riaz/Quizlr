@@ -1,4 +1,4 @@
-import { Badge, Btn, Card, Icons, PulsingDot } from "./primitives";
+import { Badge, Btn, Card, Icons, PulsingDot } from "../primitives";
 
 const AI_SAMPLE = [
   { q: "In what year did Apollo 11 land on the Moon?", opts: ["1967", "1969", "1971", "1973"], a: 1 },
