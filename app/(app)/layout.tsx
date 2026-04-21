@@ -1,4 +1,4 @@
-import DashboardNav from "@/components/dashboard/DashboardNav";
+import DashboardNav from "@/components/dashboard/dashboard-nav";
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { redirect } from "next/navigation";
 

@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Loader2, ArrowLeft, Save } from "lucide-react";
-import QuestionManager from "@/components/quiz/QuestionManager";
-import { QuestionItem } from "@/components/quiz/QuestionCard";
+import QuestionManager from "@/components/quiz/question-manager";
+import { QuestionItem } from "@/components/quiz/question-card";
 
 interface ExistingQuestion {
   _id: string;

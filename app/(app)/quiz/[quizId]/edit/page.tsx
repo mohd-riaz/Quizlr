@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 import { useParams } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import QuizEditor from "@/components/quiz/QuizEditor";
+import QuizEditor from "@/components/quiz/quiz-editor";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function EditQuizPage() {

@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Wand2, AlertCircle, Loader2, PlusCircle, X } from "lucide-react";
-import QuestionCard, { QuestionItem, createBlankQuestion } from "@/components/quiz/QuestionCard";
+import QuestionCard, { QuestionItem, createBlankQuestion } from "@/components/quiz/question-card";
 
 interface QuestionManagerProps {
   questions: QuestionItem[];

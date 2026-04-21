@@ -1,4 +1,4 @@
-import ParticipantList from "@/components/game/ParticipantList";
+import ParticipantList from "@/components/game/participant-list";
 
 interface Participant {
   _id: string;

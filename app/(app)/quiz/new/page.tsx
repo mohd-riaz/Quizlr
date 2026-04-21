@@ -1,4 +1,4 @@
-import QuizWizard from "@/components/quiz/QuizWizard";
+import QuizWizard from "@/components/quiz/quiz-wizard";
 
 export default function NewQuizPage() {
   return (

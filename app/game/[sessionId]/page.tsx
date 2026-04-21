@@ -5,12 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import NicknameEntry from "@/components/game/NicknameEntry";
-import HostLobby from "@/components/game/HostLobby";
-import PlayerWaiting from "@/components/game/PlayerWaiting";
-import QuestionView from "@/components/game/QuestionView";
-import ScoreReveal from "@/components/game/ScoreReveal";
-import Leaderboard from "@/components/game/Leaderboard";
+import NicknameEntry from "@/components/game/nickname-entry";
+import HostLobby from "@/components/game/host-lobby";
+import PlayerWaiting from "@/components/game/player-waiting";
+import QuestionView from "@/components/game/question-view";
+import ScoreReveal from "@/components/game/score-reveal";
+import Leaderboard from "@/components/game/leaderboard";
 import { Button } from "@/components/ui/button";
 
 export default function GamePage() {

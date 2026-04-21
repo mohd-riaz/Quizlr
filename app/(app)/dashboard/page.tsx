@@ -5,7 +5,7 @@ import { useQuery, useConvex, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import QuizCard from "@/components/quiz/QuizCard";
+import QuizCard from "@/components/quiz/quiz-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,

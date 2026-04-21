@@ -3,8 +3,8 @@
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import JoinCodeDisplay from "@/components/game/JoinCodeDisplay";
-import ParticipantList from "@/components/game/ParticipantList";
+import JoinCodeDisplay from "@/components/game/join-code-display";
+import ParticipantList from "@/components/game/participant-list";
 import { Button } from "@/components/ui/button";
 import { Users, Play } from "lucide-react";
 

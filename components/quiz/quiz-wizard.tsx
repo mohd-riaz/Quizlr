@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Loader2, ArrowLeft, ArrowRight, Check } from "lucide-react";
-import QuestionManager from "@/components/quiz/QuestionManager";
-import { QuestionItem } from "@/components/quiz/QuestionCard";
+import QuestionManager from "@/components/quiz/question-manager";
+import { QuestionItem } from "@/components/quiz/question-card";
 
 export default function QuizWizard() {
   const router = useRouter();
