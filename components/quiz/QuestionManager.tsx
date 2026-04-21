@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -27,20 +27,21 @@ interface QuestionManagerProps {
   questions: QuestionItem[];
   onChange: (questions: QuestionItem[]) => void;
   timeLimit: number;
+  initialTopic?: string;
 }
 
-export default function QuestionManager({ questions, onChange, timeLimit }: QuestionManagerProps) {
+export default function QuestionManager({ questions, onChange, timeLimit, initialTopic = "" }: QuestionManagerProps) {
   const generateQuestions = useAction(api.ai.generateQuestions);
 
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState(initialTopic);
+  useEffect(() => { setTopic(initialTopic); }, [initialTopic]);
   const [genCount, setGenCount] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [pendingReplace, setPendingReplace] = useState(false);
 
-  // Cancel flags — refs so they're readable inside async closures without stale state
-  const bulkCancelledRef = useRef(false);
-  const cancelledQuestionsRef = useRef<Set<string>>(new Set());
+  const bulkAbortRef = useRef<AbortController | null>(null);
+  const questionAbortRef = useRef<Map<string, AbortController>>(new Map());
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -49,13 +50,15 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
 
   const runGenerate = async () => {
     if (!topic.trim()) { setGenerateError("Enter a topic first."); return; }
-    bulkCancelledRef.current = false;
+    bulkAbortRef.current?.abort();
+    const controller = new AbortController();
+    bulkAbortRef.current = controller;
     setIsGenerating(true);
     setGenerateError(null);
     setPendingReplace(false);
     try {
       const result = await generateQuestions({ topic: topic.trim(), count: genCount, timeLimit });
-      if (bulkCancelledRef.current) return;
+      if (controller.signal.aborted) return;
       onChange(result.map((q) => ({
         id: crypto.randomUUID(),
         text: q.text,
@@ -64,14 +67,14 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
         explanation: q.explanation,
       })));
     } catch {
-      if (!bulkCancelledRef.current) setGenerateError("Something went wrong — please try again.");
+      if (!controller.signal.aborted) setGenerateError("Something went wrong — please try again.");
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleCancelBulk = () => {
-    bulkCancelledRef.current = true;
+    bulkAbortRef.current?.abort();
     setIsGenerating(false);
   };
 
@@ -81,23 +84,29 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
   };
 
   const handleAiGenerateQuestion = async (questionId: string, index: number, prompt: string) => {
-    cancelledQuestionsRef.current.delete(questionId);
-    const result = await generateQuestions({ topic: prompt, count: 1, timeLimit });
-    if (cancelledQuestionsRef.current.has(questionId)) return;
-    const q = result[0];
-    const next = [...questions];
-    next[index] = {
-      ...questions[index],
-      text: q.text,
-      options: q.options as [string, string, string, string],
-      correctIndex: q.correctIndex,
-      explanation: q.explanation,
-    };
-    onChange(next);
+    questionAbortRef.current.get(questionId)?.abort();
+    const controller = new AbortController();
+    questionAbortRef.current.set(questionId, controller);
+    try {
+      const result = await generateQuestions({ topic: prompt, count: 1, timeLimit });
+      if (controller.signal.aborted) return;
+      const q = result[0];
+      const next = [...questions];
+      next[index] = {
+        ...questions[index],
+        text: q.text,
+        options: q.options as [string, string, string, string],
+        correctIndex: q.correctIndex,
+        explanation: q.explanation,
+      };
+      onChange(next);
+    } finally {
+      questionAbortRef.current.delete(questionId);
+    }
   };
 
   const handleCancelQuestionGen = (questionId: string) => {
-    cancelledQuestionsRef.current.add(questionId);
+    questionAbortRef.current.get(questionId)?.abort();
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -210,7 +219,7 @@ export default function QuestionManager({ questions, onChange, timeLimit }: Ques
                 onDelete={() => onChange(questions.filter((_, j) => j !== i))}
                 onAiGenerate={(prompt) => handleAiGenerateQuestion(q.id, i, prompt)}
                 onAiCancel={() => handleCancelQuestionGen(q.id)}
-                defaultTopic={topic}
+                defaultTopic={initialTopic}
               />
             ))}
           </div>

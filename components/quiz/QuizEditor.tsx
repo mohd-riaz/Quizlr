@@ -165,6 +165,7 @@ export default function QuizEditor({
         questions={questions}
         onChange={setQuestions}
         timeLimit={timeLimit}
+        initialTopic={description || title}
       />
 
       {saveError && (

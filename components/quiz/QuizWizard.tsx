@@ -139,6 +139,7 @@ export default function QuizWizard() {
             questions={questions}
             onChange={setQuestions}
             timeLimit={timeLimit}
+            initialTopic={description || title}
           />
 
           {saveError && (
