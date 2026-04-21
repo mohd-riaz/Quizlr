@@ -90,15 +90,15 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground antialiased">
+    <div className="min-h-screen bg-background text-foreground antialiased">
       {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-md border-b border-border bg-background/80">
+      {/* <header className="sticky top-0 z-40 backdrop-blur-md border-b border-border bg-background/80">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <span className="text-[17px] font-bold tracking-tight">
             Quiz<span className="text-muted-foreground">lr</span>
           </span>
         </div>
-      </header>
+      </header> */}
 
       <main className="max-w-lg mx-auto px-6 pt-20 pb-24">
         {/* Hero */}
@@ -219,7 +219,7 @@ function CodeTile({ value, error, inputRef, onChange, onKeyDown, onPaste, autoFo
         "outline-none transition-all duration-150 select-none",
         "focus:border-foreground focus:shadow-[0_0_0_3px_oklch(from_var(--foreground)_l_c_h/0.1)]",
         filled && !error ? "border-foreground/40" : "border-border",
-        error ? "border-red-500 animate-[shake_0.35s_ease]" : "",
+        error ? "border-destructive animate-[shake_0.35s_ease]" : "",
       ].filter(Boolean).join(" ")}
       style={error ? { animation: "shake 0.35s ease" } : undefined}
     />

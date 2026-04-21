@@ -73,7 +73,7 @@ export default function ScoreReveal({
               key={i}
               className={`flex items-center gap-3 rounded-xl px-4 py-3 border-b-4 ${
                 isCorrect
-                  ? `${OPTION_COLORS[i]} border-b-black/20`
+                  ? `${OPTION_COLORS[i]} border-b-foreground/20`
                   : "bg-muted/50 border-b-border opacity-50"
               }`}
             >
@@ -102,28 +102,28 @@ export default function ScoreReveal({
       {/* Player: points earned */}
       {!isHost && myAnswer && (
         <div
-          className={`rounded-xl px-5 py-4 text-center ${
+          className={`rounded-xl px-5 py-4 text-center border ${
             myAnswer.isCorrect
-              ? "bg-emerald-900/50 border border-emerald-700"
-              : "bg-rose-900/50 border border-rose-700"
+              ? "bg-emerald-500/10 border-emerald-500/30"
+              : "bg-destructive/10 border-destructive/30"
           }`}
         >
           <div className="flex items-center justify-center gap-2 mb-1">
             {myAnswer.isCorrect ? (
-              <Check className="w-5 h-5 text-emerald-400" />
+              <Check className="w-5 h-5 text-emerald-500" />
             ) : (
-              <X className="w-5 h-5 text-rose-400" />
+              <X className="w-5 h-5 text-destructive" />
             )}
             <span
               className={`font-bold text-lg ${
-                myAnswer.isCorrect ? "text-emerald-400" : "text-rose-400"
+                myAnswer.isCorrect ? "text-emerald-500" : "text-destructive"
               }`}
             >
               {myAnswer.isCorrect ? "Correct!" : "Wrong"}
             </span>
           </div>
           {myAnswer.isCorrect && (
-            <p className="text-white font-black text-3xl">
+            <p className="text-foreground font-black text-3xl">
               +{myAnswer.pointsEarned}
             </p>
           )}

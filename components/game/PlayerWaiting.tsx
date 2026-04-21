@@ -51,7 +51,7 @@ export default function PlayerWaiting({
       </div>
 
       {/* Player count */}
-      <div className="w-full bg-card rounded-2xl p-5">
+      <div className="w-full bg-card rounded-2xl p-5 border">
         <ParticipantList participants={participants} />
       </div>
     </div>

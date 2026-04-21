@@ -51,10 +51,10 @@ const OPTION_COLORS = [
 ];
 
 const OPTION_CORRECT_COLORS = [
-  "bg-green-500 border-green-600 text-white",
-  "bg-green-500 border-green-600 text-white",
-  "bg-green-500 border-green-600 text-white",
-  "bg-green-500 border-green-600 text-white",
+  "bg-primary border-primary text-primary-foreground",
+  "bg-primary border-primary text-primary-foreground",
+  "bg-primary border-primary text-primary-foreground",
+  "bg-primary border-primary text-primary-foreground",
 ];
 
 const OPTION_LABELS = ["A", "B", "C", "D"];

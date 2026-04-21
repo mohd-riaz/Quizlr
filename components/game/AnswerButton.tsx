@@ -47,9 +47,9 @@ export default function AnswerButton({
         "text-white font-semibold text-left transition-all duration-150",
         "disabled:cursor-not-allowed",
         isDimmed ? DIMMED_COLORS[index] : BASE_COLORS[index],
-        isCorrect && "ring-4 ring-white/70 opacity-100",
-        isWrong && "ring-4 ring-white/30",
-        state === "selected" && "ring-4 ring-white/70"
+        isCorrect && "ring-4 ring-foreground/50 opacity-100",
+        isWrong && "ring-4 ring-foreground/20",
+        state === "selected" && "ring-4 ring-foreground/50"
       )}
     >
       <span className="text-xl select-none w-6 flex-shrink-0">

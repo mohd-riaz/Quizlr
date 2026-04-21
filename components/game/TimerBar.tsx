@@ -54,7 +54,7 @@ export default function TimerBar({
 
   return (
     <div className="w-full flex items-center gap-3">
-      <div className="flex-1 h-3 bg-slate-700 rounded-full overflow-hidden">
+      <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
         <div
           className={cn("h-full rounded-full transition-[width] duration-[250ms]", barColor)}
           style={{ width: `${pct}%` }}
@@ -63,7 +63,7 @@ export default function TimerBar({
       <span
         className={cn(
           "w-8 text-right tabular-nums font-bold text-lg",
-          pct <= 25 ? "text-rose-400" : "text-slate-200"
+          pct <= 25 ? "text-destructive" : "text-foreground"
         )}
       >
         {secs}

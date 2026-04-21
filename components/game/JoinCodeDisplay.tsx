@@ -27,9 +27,9 @@ export default function JoinCodeDisplay({
       <p className="text-muted-foreground text-sm font-medium uppercase tracking-widest">
         Join Code
       </p>
-      <div className="bg-card rounded-2xl px-8 py-4">
+      <div className="bg-card rounded-2xl px-8 py-4 border">
         <span className="text-5xl font-black tracking-[0.3em] text-foreground font-mono">
-          {joinCode}
+          {joinCode.trim()}
         </span>
       </div>
       <Button
@@ -40,8 +40,8 @@ export default function JoinCodeDisplay({
       >
         {copied ? (
           <>
-            <Check className="w-4 h-4 text-emerald-400" />
-            <span className="text-emerald-400">Link copied!</span>
+            <Check className="w-4 h-4 text-foreground" />
+            <span className="text-foreground">Link copied!</span>
           </>
         ) : (
           <>

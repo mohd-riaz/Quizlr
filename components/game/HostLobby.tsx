@@ -57,7 +57,7 @@ export default function HostLobby({
       <JoinCodeDisplay joinCode={joinCode} sessionId={sessionId} />
 
       {/* Participant list */}
-      <div className="w-full bg-card rounded-2xl p-5">
+      <div className="w-full bg-card rounded-2xl p-5 border">
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-4 h-4 text-muted-foreground" />
           <span className="text-muted-foreground text-sm font-medium">Players</span>

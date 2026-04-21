@@ -19,10 +19,10 @@ interface LeaderboardProps {
   onHostAgain?: () => void;
 }
 
-const MEDAL_COLORS = ["text-yellow-400", "text-slate-300", "text-amber-600"];
+const MEDAL_COLORS = ["text-yellow-400", "text-muted-foreground", "text-amber-600"];
 const PODIUM_BG = [
   "bg-yellow-500/20 border-yellow-500/40",
-  "bg-slate-500/20 border-slate-500/40",
+  "bg-muted border-border",
   "bg-amber-600/20 border-amber-600/40",
 ];
 
@@ -58,7 +58,7 @@ export default function Leaderboard({
             <div
               key={p._id}
               className={`flex-1 flex flex-col items-center gap-2 rounded-xl border px-3 py-4 ${PODIUM_BG[i]} ${
-                p._id === participantId ? "ring-2 ring-white/50" : ""
+                p._id === participantId ? "ring-2 ring-foreground/30" : ""
               }`}
             >
               <span className={`text-2xl font-black ${MEDAL_COLORS[i]}`}>
