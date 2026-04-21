@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -17,16 +17,18 @@ export default function GamePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const router = useRouter();
 
-  // LocalStorage participant ID
-  const [participantId, setParticipantId] = useState<string | null>(null);
-  const [nickname, setNickname] = useState<string>("");
-  const [mounted, setMounted] = useState(false);
+  // Read participantId from localStorage — useSyncExternalStore handles SSR
+  // by returning null on the server and the real value on the client.
+  const storedParticipantId = useSyncExternalStore(
+    () => () => {},
+    () => localStorage.getItem(`quizlr_participant_${sessionId}`),
+    () => null
+  );
+  // Holds the id immediately after joining (before a page refresh)
+  const [joinedParticipantId, setJoinedParticipantId] = useState<string | null>(null);
+  const participantId = joinedParticipantId ?? storedParticipantId;
 
-  useEffect(() => {
-    const stored = localStorage.getItem(`quizlr_participant_${sessionId}`);
-    if (stored) setParticipantId(stored);
-    setMounted(true);
-  }, [sessionId]);
+  const [nickname, setNickname] = useState<string>("");
 
   // ── Convex subscriptions ─────────────────────────────────────────────────
   const session = useQuery(api.sessions.getById, {
@@ -68,12 +70,12 @@ export default function GamePage() {
 
   // ── Handle NicknameEntry join ────────────────────────────────────────────
   const handleJoined = (pid: string, nick: string) => {
-    setParticipantId(pid);
+    setJoinedParticipantId(pid);
     setNickname(nick);
   };
 
   // ── Render guards ────────────────────────────────────────────────────────
-  if (!mounted || session === undefined || participants === undefined) {
+  if (session === undefined || participants === undefined) {
     return <GameShell>{null}</GameShell>;
   }
 
@@ -173,7 +175,7 @@ export default function GamePage() {
           totalQuestions={quiz.questions?.length ?? 0}
           sessionId={sessionId}
           participantId={participantId}
-          questionStartedAt={session.questionStartedAt ?? Date.now()}
+          questionStartedAt={session.questionStartedAt ?? (new Date()).getTime()}
           timeLimit={quiz.timeLimit}
           isHost={isHost}
           onEndQuestion={handleEndQuestion}

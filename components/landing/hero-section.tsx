@@ -66,7 +66,7 @@ export function HeroSection({
               <Btn href="/signup" size="lg" className="lp-sheen w-full sm:w-auto justify-center">
                 Start a quiz — it&apos;s free {Icons.arrow}
               </Btn>
-              <Btn href="/signup" variant="outline" size="lg" className="w-full sm:w-auto justify-center">
+              <Btn href="/join" variant="outline" size="lg" className="w-full sm:w-auto justify-center">
                 {Icons.lock} I have a join code
               </Btn>
             </div>

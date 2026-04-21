@@ -171,7 +171,7 @@ export default function DashboardPage() {
           </DialogHeader>
           <div className="flex flex-col gap-4 mt-2">
             <input
-              placeholder="e.g. AB12CD"
+              placeholder="ABC123"
               value={joinCode}
               onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setJoinError(null); }}
               maxLength={6}
