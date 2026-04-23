@@ -20,7 +20,7 @@ export function HeroSection({
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 lp-bg-grid lp-radial-fade pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-18 pb-8">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
 
           {/* Copy */}
@@ -63,34 +63,16 @@ export function HeroSection({
               </Btn>
             </div>
 
-            {/* Join code tiles */}
-            <div className="mt-7 flex items-center gap-3">
-              <div className="flex items-center justify-center py-2">
-                <div className="flex gap-1.5">
-                  {["7", "K", "X", "2", "M"].map((c) => (
-                    <span key={c} className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border border-border bg-card">{c}</span>
-                  ))}
-                  <span
-                    className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border lp-pulse-ring-accent"
-                    style={{ borderColor: "var(--lp-accent)", color: "var(--lp-accent)", background: "var(--card)" }}
-                  >9</span>
-                </div>
-              </div>
-              <span className="text-xs font-mono text-muted-foreground">enter code to join</span>
-            </div>
-
             {/* Trust row */}
-            <div className="mt-8 flex items-center gap-5 text-xs text-muted-foreground">
-              <div className="flex -space-x-2 shrink-0">
-                {["oklch(0.7 0.16 25)", "oklch(0.7 0.16 145)", "oklch(0.7 0.16 255)"].map((bg, i) => (
-                  <span key={i} className="w-7 h-7 rounded-full border-2 border-background" style={{ background: bg }} />
-                ))}
-                <span className="w-7 h-7 rounded-full border-2 border-background font-mono text-[10px] flex items-center justify-center bg-muted text-foreground">+9k</span>
-              </div>
-              <div className="leading-tight">
-                <div className="font-medium text-foreground">9,412 quizzes hosted this week</div>
-                <div className="hidden sm:block">Avg. session starts in 4.2s · &lt;90ms answer latency</div>
-              </div>
+            <div className="mt-8 flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+              {["Real-time", "No account to play", "Open source"].map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center h-7 px-3 rounded-full text-xs font-medium border border-border bg-card text-muted-foreground"
+                >
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
 

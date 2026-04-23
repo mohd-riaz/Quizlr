@@ -1,4 +1,5 @@
 import { Badge, Btn, Icons } from "../primitives";
+import { GITHUB_URL } from "@/lib/site";
 
 export function CtaSection() {
   return (
@@ -31,9 +32,9 @@ export function CtaSection() {
           <Btn href="/signup" size="lg" className="w-full sm:w-auto justify-center">
             Create free account {Icons.arrow}
           </Btn>
-          {/* <Btn href="/signup" variant="outline" size="lg" className="w-full sm:w-auto justify-center">
-            See a demo quiz
-          </Btn> */}
+          <Btn href={GITHUB_URL} variant="outline" size="lg" className="w-full sm:w-auto justify-center" target="_blank">
+            {Icons.github} View source
+          </Btn>
         </div>
         <div className="mt-6 text-xs font-mono text-muted-foreground">
           No credit card · free for hobby use ·{" "}

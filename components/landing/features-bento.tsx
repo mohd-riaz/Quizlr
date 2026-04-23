@@ -71,7 +71,7 @@ export function FeaturesBento({ sparkData, aps }: { sparkData: number[]; aps: nu
             </FeatureIcon>
             <h3 className="text-lg font-semibold mt-0">AI question generation</h3>
             <p className="text-sm mt-2 mb-4 text-muted-foreground">
-              Paste a topic, doc, or URL. Get validated, structured MCQs with explanations.
+              Paste a topic or some text. Get validated, structured MCQs with explanations.
             </p>
             <div className="rounded-md border overflow-hidden border-border bg-card">
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border text-xs font-mono text-muted-foreground">
