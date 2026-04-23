@@ -110,7 +110,7 @@ export function FeaturesBento({ sparkData, aps }: { sparkData: number[]; aps: nu
           </Card>
 
           {/* Podium */}
-          <Card className="p-5 sm:p-6 lg:col-span-3">
+          {/* <Card className="p-5 sm:p-6 lg:col-span-3">
             <FeatureIcon>
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M8 21V9h8v12M4 21V13h4v8M16 21v-6h4v6M2 21h20" />
@@ -125,11 +125,11 @@ export function FeaturesBento({ sparkData, aps }: { sparkData: number[]; aps: nu
               <PodiumBar rank={1} name="Priya" height="100%" accent />
               <PodiumBar rank={3} name="Mika" height="55%" />
             </div>
-          </Card>
+          </Card> */}
 
           {/* Small tiles */}
           {SMALL_TILES.map(({ icon, title, desc }) => (
-            <Card key={title} className="p-5 sm:p-6 lg:col-span-2">
+            <Card key={title} className="p-5 sm:p-6 lg:col-span-3">
               <FeatureIcon>{icon}</FeatureIcon>
               <h3 className="text-base sm:text-lg font-semibold mt-0">{title}</h3>
               <p className="text-sm mt-2 text-muted-foreground">{desc}</p>
@@ -188,9 +188,9 @@ const SMALL_TILES = [
     desc: "Tweak any question inline. Regenerate a single one without losing the rest.",
     icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>,
   },
-  {
-    title: "Free to start",
-    desc: "Hobby tier covers small classrooms and teams. Serverless from day one.",
-    icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="16" cy="14" r="2"/></svg>,
-  },
+  // {
+  //   title: "Free to start",
+  //   desc: "Hobby tier covers small classrooms and teams. Serverless from day one.",
+  //   icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><circle cx="16" cy="14" r="2"/></svg>,
+  // },
 ];

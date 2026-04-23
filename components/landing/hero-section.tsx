@@ -1,8 +1,6 @@
 import { Badge, Btn, Icons, PulsingDot } from "../primitives";
 import { HeroMockup } from "./hero-mockup";
 
-const JOIN_CODE = ["7", "K", "X", "2", "M", "9"];
-
 type Player = { name: string; color: string; score: number; id: number };
 
 export function HeroSection({
@@ -26,14 +24,14 @@ export function HeroSection({
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
 
           {/* Copy */}
-          <div className="lg:col-span-6">
-            <div className="flex items-center gap-2 mb-5 flex-wrap">
+          <div className="lg:col-span-6 mt-5">
+            {/* <div className="flex items-center gap-2 mb-5 flex-wrap">
               <Badge>
                 <PulsingDot />
                 <span>Live sessions · 6-char join codes</span>
               </Badge>
               <Badge className="font-mono hidden sm:inline-flex">v0.4 · beta</Badge>
-            </div>
+            </div> */}
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] leading-[0.98] font-bold tracking-tight">
               Turn any topic into a{" "}
@@ -67,16 +65,16 @@ export function HeroSection({
 
             {/* Join code tiles */}
             <div className="mt-7 flex items-center gap-3">
-              <div className="flex gap-1.5">
-                {JOIN_CODE.map((c, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border border-border bg-card"
-                    style={i === 5 ? { borderColor: "var(--lp-accent)", color: "var(--lp-accent)" } : undefined}
-                  >
-                    {i === 5 ? <span className="lp-pulse-ring-accent">{c}</span> : c}
-                  </div>
-                ))}
+              <div className="flex items-center justify-center py-2">
+                <div className="flex gap-1.5">
+                  {["7", "K", "X", "2", "M"].map((c) => (
+                    <span key={c} className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border border-border bg-card">{c}</span>
+                  ))}
+                  <span
+                    className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border lp-pulse-ring-accent"
+                    style={{ borderColor: "var(--lp-accent)", color: "var(--lp-accent)", background: "var(--card)" }}
+                  >9</span>
+                </div>
               </div>
               <span className="text-xs font-mono text-muted-foreground">enter code to join</span>
             </div>

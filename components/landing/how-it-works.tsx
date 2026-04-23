@@ -53,7 +53,6 @@ export function HowItWorks({ step1Text }: { step1Text: string }) {
                 {["7", "K", "X", "2", "M"].map((c) => (
                   <span key={c} className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border border-border bg-card">{c}</span>
                 ))}
-                <span className="w-2 grid place-items-center text-muted-foreground">–</span>
                 <span
                   className="w-8 h-10 sm:w-9 sm:h-11 grid place-items-center text-base sm:text-lg font-mono font-semibold rounded-lg border lp-pulse-ring-accent"
                   style={{ borderColor: "var(--lp-accent)", color: "var(--lp-accent)", background: "var(--card)" }}

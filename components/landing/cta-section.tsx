@@ -37,7 +37,7 @@ export function CtaSection() {
         </div>
         <div className="mt-6 text-xs font-mono text-muted-foreground">
           No credit card · free for hobby use ·{" "}
-          <span style={{ color: "var(--foreground)" }}>quizlr.app</span>
+          <span style={{ color: "var(--foreground)" }}>quizlr.mohdriaz.com</span>
         </div>
       </div>
     </section>

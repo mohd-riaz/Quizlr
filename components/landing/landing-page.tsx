@@ -31,8 +31,6 @@ const AI_TOPICS = [
   "The periodic table · noble gases",
   "World capitals · Europe only",
 ];
-const AI_SAMPLE_COUNT = 3;
-
 type Player = { name: string; color: string; score: number; id: number };
 
 function initPlayers(): Player[] {
@@ -56,8 +54,6 @@ export function LandingPage() {
   const [floatTotal, setFloatTotal]       = useState(24);
   const [sparkData, setSparkData]         = useState<number[]>(() => Array.from({ length: 30 }, () => 0.5));
   const [aps, setAps]                     = useState(42);
-  const [aiCount, setAiCount]             = useState(0);
-  const [aiDone, setAiDone]               = useState(false);
   const [step1Text, setStep1Text]         = useState("");
   const [aiTopicText, setAiTopicText]     = useState("");
 
@@ -117,24 +113,6 @@ export function LandingPage() {
     return () => clearInterval(id);
   }, []);
 
-  // AI demo streaming
-  useEffect(() => {
-    let count = 0;
-    let timeout: ReturnType<typeof setTimeout>;
-    function advance() {
-      count++;
-      if (count > AI_SAMPLE_COUNT) {
-        setAiDone(true);
-        timeout = setTimeout(() => { count = 0; setAiDone(false); setAiCount(0); advance(); }, 3000);
-        return;
-      }
-      setAiCount(count);
-      timeout = setTimeout(advance, 1400);
-    }
-    timeout = setTimeout(advance, 400);
-    return () => clearTimeout(timeout);
-  }, []);
-
   // Step 1 typing
   useEffect(() => {
     let pi = 0, ci = 0, del = false;
@@ -180,7 +158,7 @@ export function LandingPage() {
       />
       <HowItWorks step1Text={step1Text} />
       <FeaturesBento sparkData={sparkData} aps={aps} />
-      <AiDemoSection aiCount={aiCount} aiDone={aiDone} aiTopicText={aiTopicText} />
+      <AiDemoSection aiTopicText={aiTopicText} />
       <StatsSection />
       <CtaSection />
       <Footer />
