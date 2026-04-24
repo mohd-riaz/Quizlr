@@ -5,32 +5,36 @@ import { cn } from "@/lib/utils";
 
 interface TimerBarProps {
   questionStartedAt: number;
-  timeLimit: number; // seconds
+  timeLimit: number;
   onExpire?: () => void;
+  onTick?: (remaining: number) => void;
 }
 
 export default function TimerBar({
   questionStartedAt,
   timeLimit,
   onExpire,
+  onTick,
 }: TimerBarProps) {
-  const [remaining, setRemaining] = useState(timeLimit);
+  const [pct, setPct] = useState(100);
   const expiredRef = useRef(false);
   const onExpireRef = useRef(onExpire);
+  const onTickRef = useRef(onTick);
 
-  // Keep the callback ref fresh so we don't need it in the dep array
-  useEffect(() => {
-    onExpireRef.current = onExpire;
-  });
+  useEffect(() => { onExpireRef.current = onExpire; });
+  useEffect(() => { onTickRef.current = onTick; });
 
   useEffect(() => {
     expiredRef.current = false;
-    setRemaining(timeLimit);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPct(100);
 
     const tick = () => {
       const elapsed = (Date.now() - questionStartedAt) / 1000;
       const left = Math.max(0, timeLimit - elapsed);
-      setRemaining(left);
+      const p = (left / timeLimit) * 100;
+      setPct(p);
+      onTickRef.current?.(left);
       if (left === 0 && !expiredRef.current) {
         expiredRef.current = true;
         onExpireRef.current?.();
@@ -42,32 +46,15 @@ export default function TimerBar({
     return () => clearInterval(id);
   }, [questionStartedAt, timeLimit]);
 
-  const pct = (remaining / timeLimit) * 100;
-  const secs = Math.ceil(remaining);
-
   const barColor =
-    pct > 50
-      ? "bg-emerald-500"
-      : pct > 25
-        ? "bg-yellow-400"
-        : "bg-rose-500";
+    pct > 50 ? "bg-emerald-500" : pct > 25 ? "bg-amber-400" : "bg-rose-500";
 
   return (
-    <div className="w-full flex items-center gap-3">
-      <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-        <div
-          className={cn("h-full rounded-full transition-[width] duration-[250ms]", barColor)}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span
-        className={cn(
-          "w-8 text-right tabular-nums font-bold text-lg",
-          pct <= 25 ? "text-destructive" : "text-foreground"
-        )}
-      >
-        {secs}
-      </span>
+    <div className="h-1.5 rounded-full overflow-hidden bg-muted">
+      <div
+        className={cn("h-full rounded-full transition-[width,background-color] duration-300", barColor)}
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 }

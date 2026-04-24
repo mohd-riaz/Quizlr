@@ -1,8 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Participant {
   _id: string;
@@ -19,12 +17,7 @@ interface LeaderboardProps {
   onHostAgain?: () => void;
 }
 
-const MEDAL_COLORS = ["text-yellow-400", "text-muted-foreground", "text-amber-600"];
-const PODIUM_BG = [
-  "bg-yellow-500/20 border-yellow-500/40",
-  "bg-muted border-border",
-  "bg-amber-600/20 border-amber-600/40",
-];
+const RANK_COLORS = ["text-amber-500", "text-zinc-400", "text-amber-700"];
 
 export default function Leaderboard({
   participants,
@@ -38,95 +31,70 @@ export default function Leaderboard({
     .filter((p) => !p.isHost)
     .sort((a, b) => b.score - a.score);
 
-  const podium = players.slice(0, 3);
-  const rest = players.slice(3);
-
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-center gap-3">
-        <Trophy className="w-7 h-7 text-yellow-400" />
-        <h2 className="text-foreground text-2xl font-black">
-          {isFinal ? "Final Results" : "Leaderboard"}
+    <div className="max-w-2xl mx-auto px-6 pt-10 pb-20">
+      <div className="mb-8 text-center">
+        <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+          {isFinal ? "Final results" : "Leaderboard"}
+        </span>
+        <h2 className="text-2xl font-bold tracking-tight mt-1">
+          {isFinal ? "The results are in." : "Current standings"}
         </h2>
-        <Trophy className="w-7 h-7 text-yellow-400" />
       </div>
 
-      {/* Podium */}
-      {podium.length > 0 && (
-        <div className="flex gap-3">
-          {podium.map((p, i) => (
-            <div
-              key={p._id}
-              className={`flex-1 flex flex-col items-center gap-2 rounded-xl border px-3 py-4 ${PODIUM_BG[i]} ${
-                p._id === participantId ? "ring-2 ring-foreground/30" : ""
-              }`}
-            >
-              <span className={`text-2xl font-black ${MEDAL_COLORS[i]}`}>
-                #{i + 1}
-              </span>
-              <span className="text-foreground font-semibold text-sm text-center truncate w-full text-center">
-                {p.nickname}
-                {p._id === participantId && " (you)"}
-              </span>
-              <span className="text-foreground font-bold tabular-nums">
-                {p.score.toLocaleString()}
-              </span>
-            </div>
-          ))}
+      {players.length === 0 ? (
+        <p className="text-center text-sm text-muted-foreground font-mono">No players yet.</p>
+      ) : (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          {players.map((p, i) => {
+            const isMe = p._id === participantId;
+            return (
+              <div
+                key={p._id}
+                className={[
+                  "flex items-center gap-4 px-5 py-3.5 border-b border-border last:border-0",
+                  isMe ? "bg-muted/60" : "",
+                ].join(" ")}
+              >
+                <span className={[
+                  "font-mono font-bold text-sm w-5 text-right shrink-0 tabular-nums",
+                  RANK_COLORS[i] ?? "text-muted-foreground",
+                ].join(" ")}>
+                  {i + 1}
+                </span>
+                <span className="flex-1 font-medium text-sm text-foreground truncate">
+                  {p.nickname}
+                  {isMe && (
+                    <span className="text-muted-foreground font-normal"> · you</span>
+                  )}
+                </span>
+                <span className="font-mono font-semibold text-sm tabular-nums text-foreground">
+                  {p.score.toLocaleString()}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Rest */}
-      {rest.length > 0 && (
-        <div className="bg-card rounded-xl overflow-hidden">
-          {rest.map((p, i) => (
-            <div
-              key={p._id}
-              className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 ${
-                p._id === participantId ? "bg-primary/10" : ""
-              }`}
-            >
-              <span className="text-muted-foreground w-6 text-sm tabular-nums">
-                #{i + 4}
-              </span>
-              <span className="flex-1 text-foreground font-medium text-sm">
-                {p.nickname}
-                {p._id === participantId && (
-                  <span className="text-muted-foreground"> (you)</span>
-                )}
-              </span>
-              <span className="text-foreground font-bold tabular-nums text-sm">
-                {p.score.toLocaleString()}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {players.length === 0 && (
-        <p className="text-center text-muted-foreground text-sm">No players yet.</p>
-      )}
-
-      {/* Actions */}
       {isFinal && (
-        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+        <div className="mt-8 flex flex-col sm:flex-row gap-3">
           {isHost && onHostAgain && (
-            <Button
+            <button
               onClick={onHostAgain}
-              className="flex-1 font-semibold py-6"
-              size="lg"
+              className="w-full h-11 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              Host Again
-            </Button>
+              Back to dashboard
+            </button>
           )}
-          <Button
-            variant="secondary"
-            onClick={() => router.push("/dashboard")}
-            className="flex-1 font-semibold py-6"
-            size="lg"
-          >
-            {isHost ? "Dashboard" : "Exit"}
-          </Button>
+          {!isHost && (
+            <button
+              onClick={() => router.push("/")}
+              className="w-full h-11 rounded-lg border border-border bg-transparent text-foreground text-sm font-medium hover:bg-muted transition-colors"
+            >
+              Exit
+            </button>
+          )}
         </div>
       )}
     </div>

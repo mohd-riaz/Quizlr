@@ -72,7 +72,7 @@ export default function GamePage() {
 
   if (session === null) {
     return (
-      <div className="text-center py-20 text-muted-foreground">
+      <div className="text-center py-12 text-muted-foreground">
         Session not found.
       </div>
     );
@@ -80,7 +80,7 @@ export default function GamePage() {
 
   if (!participantId && session.status !== "lobby") {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 px-4">
+      <div className="flex flex-col items-center justify-center gap-4 px-4 py-12">
         <p className="text-foreground text-center text-lg font-semibold">
           This session has already started.
         </p>
@@ -141,6 +141,7 @@ export default function GamePage() {
   }
 
   if (session.status === "active" && currentQuestion) {
+    const totalPlayers = participants.filter((p) => !p.isHost).length;
     return (
       <QuestionView
         question={currentQuestion}
@@ -151,6 +152,7 @@ export default function GamePage() {
         questionStartedAt={session.questionStartedAt ?? (new Date()).getTime()}
         timeLimit={quiz.timeLimit}
         isHost={isHost}
+        totalPlayers={totalPlayers}
         onEndQuestion={handleEndQuestion}
       />
     );
@@ -163,6 +165,8 @@ export default function GamePage() {
         sessionId={sessionId}
         participantId={participantId}
         isHost={isHost}
+        questionIndex={session.currentQuestionIndex}
+        totalQuestions={quiz.questions?.length ?? 0}
         onNext={handleAdvanceQuestion}
       />
     );

@@ -3,8 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import AnswerButton, { AnswerState } from "@/components/game/answer-button";
 
 interface Question {
   _id: string;
@@ -19,22 +18,18 @@ interface ScoreRevealProps {
   sessionId: string;
   participantId: string;
   isHost: boolean;
-  onNext: () => void; // host triggers next question / finish
+  questionIndex: number;
+  totalQuestions: number;
+  onNext: () => void;
 }
-
-const OPTION_COLORS = [
-  "bg-rose-500",
-  "bg-blue-500",
-  "bg-yellow-400",
-  "bg-emerald-500",
-];
-const SHAPES = ["▲", "◆", "●", "■"];
 
 export default function ScoreReveal({
   question,
   sessionId,
   participantId,
   isHost,
+  questionIndex,
+  totalQuestions,
   onNext,
 }: ScoreRevealProps) {
   const answers = useQuery(api.answers.listBySessionAndQuestion, {
@@ -42,107 +37,101 @@ export default function ScoreReveal({
     questionId: question._id as Id<"questions">,
   });
 
-  // Find this participant's answer
-  const myAnswer = answers?.find(
-    (a) => a.participantId === participantId
-  );
-
+  const myAnswer = answers?.find((a) => a.participantId === participantId);
   const totalAnswers = answers?.length ?? 0;
-  const correctCount =
-    answers?.filter((a) => a.isCorrect).length ?? 0;
+  const correctCount = answers?.filter((a) => a.isCorrect).length ?? 0;
+
+  const getRevealState = (i: number): AnswerState => {
+    if (i === question.correctIndex) return "correct";
+    if (myAnswer && myAnswer.selectedIndex === i && !myAnswer.isCorrect) return "wrong";
+    return "dimmed";
+  };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto px-4 py-6">
-      <h2 className="text-foreground text-center text-lg font-semibold">
-        Answer Reveal
-      </h2>
+    <div className="max-w-2xl mx-auto px-6 pt-10 pb-20">
+      <div className="mb-6 text-center">
+        <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+          Answer reveal
+        </span>
+      </div>
 
       {/* Question */}
-      <div className="bg-card rounded-2xl px-6 py-4">
-        <p className="text-foreground font-semibold text-lg sm:text-xl text-center">
+      <div className="bg-card border border-border rounded-xl p-6 mb-5">
+        <p className="text-lg font-semibold tracking-tight leading-snug text-center">
           {question.text}
         </p>
       </div>
 
-      {/* Options with correct highlighted */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {question.options.map((opt, i) => {
-          const isCorrect = i === question.correctIndex;
-          return (
-            <div
-              key={i}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 border-b-4 ${
-                isCorrect
-                  ? `${OPTION_COLORS[i]} border-b-foreground/20`
-                  : "bg-muted/50 border-b-border opacity-50"
-              }`}
-            >
-              <span className="text-xl w-6">{SHAPES[i]}</span>
-              <span className="flex-1 text-white font-semibold text-sm sm:text-base">
-                {opt}
-              </span>
-              {isCorrect && <Check className="w-5 h-5 text-white" />}
-            </div>
-          );
-        })}
+      {/* Options */}
+      <div className="grid sm:grid-cols-2 gap-2.5">
+        {question.options.map((opt, i) => (
+          <AnswerButton
+            key={i}
+            index={i}
+            text={opt}
+            state={getRevealState(i)}
+            disabled
+          />
+        ))}
       </div>
 
       {/* Explanation */}
       {question.explanation && (
-        <p className="text-muted-foreground text-sm text-center italic">
+        <p className="mt-5 text-sm font-mono text-muted-foreground text-center italic">
           {question.explanation}
         </p>
       )}
 
-      {/* Stats */}
-      <div className="bg-card rounded-xl px-5 py-3 text-center text-foreground text-sm">
-        {correctCount} / {totalAnswers} players answered correctly
+      {/* Stats row */}
+      <div className="mt-5 flex items-center justify-center gap-1.5 text-xs font-mono text-muted-foreground">
+        <span className="font-semibold text-foreground">{correctCount}</span>
+        <span>/</span>
+        <span className="font-semibold text-foreground">{totalAnswers}</span>
+        <span>answered correctly</span>
       </div>
 
-      {/* Player: points earned */}
-      {!isHost && myAnswer && (
-        <div
-          className={`rounded-xl px-5 py-4 text-center border ${
-            myAnswer.isCorrect
-              ? "bg-emerald-500/10 border-emerald-500/30"
-              : "bg-destructive/10 border-destructive/30"
-          }`}
-        >
-          <div className="flex items-center justify-center gap-2 mb-1">
-            {myAnswer.isCorrect ? (
-              <Check className="w-5 h-5 text-emerald-500" />
-            ) : (
-              <X className="w-5 h-5 text-destructive" />
-            )}
-            <span
-              className={`font-bold text-lg ${
-                myAnswer.isCorrect ? "text-emerald-500" : "text-destructive"
-              }`}
-            >
-              {myAnswer.isCorrect ? "Correct!" : "Wrong"}
-            </span>
-          </div>
-          {myAnswer.isCorrect && (
-            <p className="text-foreground font-black text-3xl">
-              +{myAnswer.pointsEarned}
+      {/* Player result */}
+      {!isHost && (
+        <div className={[
+          "mt-5 rounded-lg border px-5 py-4 text-center",
+          myAnswer
+            ? myAnswer.isCorrect
+              ? "border-emerald-500/30 bg-emerald-500/5"
+              : "border-rose-500/30 bg-rose-500/5"
+            : "border-border bg-muted/30",
+        ].join(" ")}>
+          {myAnswer ? (
+            <>
+              <p className={`text-sm font-semibold mb-1 ${myAnswer.isCorrect ? "text-emerald-500" : "text-rose-500"}`}>
+                {myAnswer.isCorrect ? "Correct!" : "Wrong"}
+              </p>
+              {myAnswer.isCorrect && (
+                <p className="text-foreground font-black text-3xl tabular-nums">
+                  +{myAnswer.pointsEarned.toLocaleString()}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-muted-foreground text-sm font-mono">
+              You didn&apos;t answer in time.
             </p>
           )}
         </div>
       )}
-      {!isHost && !myAnswer && (
-        <div className="rounded-xl px-5 py-4 text-center bg-card">
-          <p className="text-muted-foreground">You didn&apos;t answer in time.</p>
-        </div>
-      )}
 
-      {/* Host: next button */}
+      {/* Host next button */}
       {isHost && (
-        <Button
-          onClick={onNext}
-          className="self-center font-semibold px-8"
-        >
-          Next Question →
-        </Button>
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={onNext}
+            className="inline-flex items-center gap-2 h-11 px-6 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            {questionIndex + 1 >= totalQuestions ? "See Results" : "Next Question"}
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       )}
     </div>
   );
