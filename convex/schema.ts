@@ -10,9 +10,12 @@ export default defineSchema({
     title: v.string(),
     description: v.optional(v.string()),
     timeLimit: v.number(),
+    practiceCode: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_hostId", ["hostId"]),
+  })
+    .index("by_hostId", ["hostId"])
+    .index("by_practiceCode", ["practiceCode"]),
 
   questions: defineTable({
     quizId: v.id("quizzes"),

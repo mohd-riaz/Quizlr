@@ -153,3 +153,56 @@ export const getById = query({
     return { ...quiz, questions };
   },
 });
+
+function makePracticeCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+export const generatePracticeCode = mutation({
+  args: { quizId: v.id("quizzes") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const quiz = await ctx.db.get(args.quizId);
+    if (!quiz) throw new Error("Quiz not found");
+    if (quiz.hostId !== userId) throw new Error("Not authorized");
+
+    let code = makePracticeCode();
+    let attempts = 0;
+    while (attempts < 10) {
+      const existing = await ctx.db
+        .query("quizzes")
+        .withIndex("by_practiceCode", (q) => q.eq("practiceCode", code))
+        .first();
+      if (!existing) break;
+      code = makePracticeCode();
+      attempts++;
+    }
+
+    await ctx.db.patch(args.quizId, { practiceCode: code });
+    return code;
+  },
+});
+
+export const getByPracticeCode = query({
+  args: { practiceCode: v.string() },
+  handler: async (ctx, args) => {
+    const quiz = await ctx.db
+      .query("quizzes")
+      .withIndex("by_practiceCode", (q) => q.eq("practiceCode", args.practiceCode))
+      .first();
+    if (!quiz) return null;
+    const questions = await ctx.db
+      .query("questions")
+      .withIndex("by_quizId_order", (q) => q.eq("quizId", quiz._id))
+      .order("asc")
+      .collect();
+    return { ...quiz, questions };
+  },
+});

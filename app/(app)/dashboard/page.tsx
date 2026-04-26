@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useConvex, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const convex = useConvex();
   const quizzes = useQuery(api.quizzes.listByHost);
   const createSession = useMutation(api.sessions.create);
+  const generatePracticeCode = useMutation(api.quizzes.generatePracticeCode);
 
   const [search, setSearch] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -26,6 +27,29 @@ export default function DashboardPage() {
   const [joining, setJoining] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [hostingQuizId, setHostingQuizId] = useState<string | null>(null);
+
+  // Practice dialog state
+  const [practiceDialogQuizId, setPracticeDialogQuizId] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const generatingForRef = useRef<string | null>(null);
+
+  const practiceQuiz = quizzes?.find((q) => q._id === practiceDialogQuizId);
+  const practiceCodeValue = practiceQuiz?.practiceCode;
+
+  // Auto-generate practice code when dialog opens and no code exists yet
+  useEffect(() => {
+    if (!practiceDialogQuizId || !quizzes || generatingForRef.current === practiceDialogQuizId) return;
+    const quiz = quizzes.find((q) => q._id === practiceDialogQuizId);
+    if (!quiz || quiz.practiceCode) return;
+    generatingForRef.current = practiceDialogQuizId;
+    setIsGenerating(true);
+    generatePracticeCode({ quizId: practiceDialogQuizId as Id<"quizzes"> }).finally(() => {
+      generatingForRef.current = null;
+      setIsGenerating(false);
+    });
+  }, [practiceDialogQuizId, quizzes]);
 
   const handleHost = async (quizId: string) => {
     setHostingQuizId(quizId);
@@ -36,6 +60,30 @@ export default function DashboardPage() {
     } catch {
     } finally {
       setHostingQuizId(null);
+    }
+  };
+
+  const handlePractice = (quizId: string) => {
+    setIsCopied(false);
+    setPracticeDialogQuizId(quizId);
+  };
+
+  const handleCopy = async () => {
+    if (!practiceCodeValue) return;
+    const url = `${window.location.origin}/practice/${practiceCodeValue}`;
+    await navigator.clipboard.writeText(url);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleRegenerate = async () => {
+    if (!practiceDialogQuizId) return;
+    setIsRegenerating(true);
+    setIsCopied(false);
+    try {
+      await generatePracticeCode({ quizId: practiceDialogQuizId as Id<"quizzes"> });
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -132,6 +180,7 @@ export default function DashboardPage() {
                   <div className="flex gap-2">
                     <Skeleton className="h-9 flex-1" />
                     <Skeleton className="h-9 flex-1" />
+                    <Skeleton className="h-9 flex-1" />
                   </div>
                 </div>
               ))}
@@ -151,6 +200,7 @@ export default function DashboardPage() {
                   key={quiz._id}
                   quiz={quiz}
                   onHost={handleHost}
+                  onPractice={handlePractice}
                   isHosting={hostingQuizId === quiz._id}
                 />
               ))}
@@ -183,6 +233,49 @@ export default function DashboardPage() {
             >
               {joining ? "Joining…" : "Join"}
             </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Practice link dialog */}
+      <Dialog
+        open={practiceDialogQuizId !== null}
+        onOpenChange={(open) => { if (!open) setPracticeDialogQuizId(null); }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Practice Link</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-2">
+            <p className="text-sm text-muted-foreground">
+              Share this link so anyone can practice your quiz solo.
+            </p>
+            {isGenerating || !practiceCodeValue ? (
+              <div className="h-10 w-full rounded-lg border border-border bg-card animate-pulse" />
+            ) : (
+              <input
+                readOnly
+                value={`${typeof window !== "undefined" ? window.location.origin : ""}/practice/${practiceCodeValue}`}
+                className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm font-mono text-muted-foreground outline-none focus:ring-1 focus:ring-foreground cursor-text select-all"
+                onFocus={(e) => e.target.select()}
+              />
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={handleCopy}
+                disabled={!practiceCodeValue || isGenerating}
+                className="flex-1 h-9 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity cursor-pointer"
+              >
+                {isCopied ? "Copied!" : "Copy"}
+              </button>
+              <button
+                onClick={handleRegenerate}
+                disabled={isRegenerating || isGenerating}
+                className="flex-1 h-9 rounded-lg border border-border bg-card text-foreground text-sm font-medium hover:bg-muted disabled:opacity-60 transition-colors cursor-pointer"
+              >
+                {isRegenerating ? "Regenerating…" : "Regenerate"}
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

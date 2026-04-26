@@ -12,12 +12,14 @@ interface QuizCardProps {
     timeLimit: number;
     updatedAt: number;
     questionCount: number;
+    practiceCode?: string;
   };
   onHost: (quizId: string) => void;
+  onPractice: (quizId: string) => void;
   isHosting?: boolean;
 }
 
-export default function QuizCard({ quiz, onHost, isHosting }: QuizCardProps) {
+export default function QuizCard({ quiz, onHost, onPractice, isHosting }: QuizCardProps) {
   const router = useRouter();
   return (
     <article className="bg-card border border-border rounded-[calc(var(--radius)+4px)] p-5 flex flex-col gap-4 transition-all duration-150 hover:-translate-y-px hover:border-[color-mix(in_oklch,var(--foreground)_25%,var(--border))] hover:shadow-md">
@@ -64,6 +66,16 @@ export default function QuizCard({ quiz, onHost, isHosting }: QuizCardProps) {
               Host
             </>
           )}
+        </button>
+        <button
+          onClick={() => onPractice(quiz._id)}
+          className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 px-3.5 text-sm font-medium rounded-[var(--radius)] bg-card border border-border text-foreground transition-colors hover:bg-muted cursor-pointer"
+        >
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          Practice
         </button>
         <button
           onClick={() => router.push(`/quiz/${quiz._id}/edit`)}
