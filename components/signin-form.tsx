@@ -138,6 +138,7 @@ export function SignInForm({
             <FieldSeparator color="bg-card">or</FieldSeparator>
 
             <form
+              suppressHydrationWarning
               onSubmit={handleSubmit}
               className="flex flex-col gap-5"
               onChange={() => {

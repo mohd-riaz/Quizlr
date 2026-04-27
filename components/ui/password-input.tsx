@@ -19,6 +19,7 @@ export function PasswordInput({
     >
       <input
         {...props}
+        suppressHydrationWarning
         type={show ? "text" : "password"}
         disabled={disabled}
         className={cn(

@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
+    "dev:tailscale": "npm-run-all --parallel dev:frontend-tailscale dev:backend",
     "dev:frontend": "next dev",
+    "dev:frontend-tailscale": "next dev -H 0.0.0.0",
     "dev:backend": "convex dev",
-    "predev": "convex dev --until-success && convex dev --once --run-sh \"node setup.mjs --once\" && convex dashboard",
+    "predev": "convex dev --until-success && convex dev --once --run-sh \"node setup.mjs --once\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ignore-pattern \"convex/_generated/**\""
