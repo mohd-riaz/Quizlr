@@ -17,7 +17,7 @@ export const ResendOTP = Email({
   async sendVerificationRequest({ identifier: email, provider, token }) {
     const resend = new ResendAPI(provider.apiKey);
     const { error } = await resend.emails.send({
-      from: "Quizlr <onboarding@resend.dev>",
+      from: `Quizlr <${process.env.FROM_EMAIL ?? "onboarding@resend.dev"}>`,
       to: [email],
       subject: "Verify your Quizlr account",
       text: getOTPTextTemplate(token),
